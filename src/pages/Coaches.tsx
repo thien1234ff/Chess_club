@@ -342,17 +342,24 @@ export const Coaches: React.FC = () => {
   // DIRECTORY DISCOVERY VIEW
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold font-display text-white tracking-wide">Chess Coach Marketplace</h1>
-        <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Study privately with verified chess grandmasters and trainers</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 border-b border-darkborder pb-4">
+        <div>
+          <h1 className="text-2xl font-bold font-display text-white tracking-wide">Cộng đồng Huấn luyện viên</h1>
+          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Học kèm riêng với các đại kiện tướng và huấn luyện viên cờ vua chuyên nghiệp</p>
+        </div>
+        {currentUser && currentUser.role !== 'coach' && (
+          <Button variant="gold" onClick={() => navigate('/profile/' + currentUser.uid + '?applyCoach=true')}>
+            Đăng ký làm HLV
+          </Button>
+        )}
       </div>
 
       {/* Filters bar */}
       <Card className="p-5 mb-8 border border-darkborder flex flex-col md:flex-row gap-4 items-end">
         <div className="flex-grow grid grid-cols-1 sm:grid-cols-4 gap-4 w-full">
           <Input 
-            label="Search Name" 
-            placeholder="e.g. Quang Liem" 
+            label="Tìm theo tên" 
+            placeholder="Ví dụ: Quang Liêm" 
             value={searchName} 
             onChange={(e) => setSearchName(e.target.value)} 
           />
@@ -364,11 +371,11 @@ export const Coaches: React.FC = () => {
               onChange={(e) => setFilterCity(e.target.value)}
               className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold"
             >
-              <option value="">All Cities</option>
-              <option value="Hanoi">Hanoi</option>
+              <option value="">Tất cả thành phố</option>
+              <option value="Hanoi">Hà Nội</option>
               <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-              <option value="Da Nang">Da Nang</option>
-              <option value="Can Tao">Can Tho</option>
+              <option value="Da Nang">Đà Nẵng</option>
+              <option value="Can Tho">Cần Thơ</option>
             </select>
           </div>
 
@@ -379,13 +386,13 @@ export const Coaches: React.FC = () => {
               onChange={(e) => setFilterSpecialty(e.target.value)}
               className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-gold"
             >
-              <option value="">All Specialities</option>
-              <option value="opening">Opening Repertoire</option>
-              <option value="middlegame">Middlegame Positional</option>
-              <option value="endgame">Endgame Technique</option>
-              <option value="tactical_training">Tactical Training</option>
-              <option value="beginner">Beginner Chess</option>
-              <option value="children">Chess for Kids</option>
+              <option value="">Tất cả chuyên môn</option>
+              <option value="Opening">Khai cuộc (Opening)</option>
+              <option value="Middlegame">Trung cuộc (Middlegame)</option>
+              <option value="Endgame">Tàn cuộc (Endgame)</option>
+              <option value="Tactics">Chiến thuật (Tactics)</option>
+              <option value="Beginner">Cơ bản (Beginner)</option>
+              <option value="Game Analysis">Phân tích ván đấu</option>
             </select>
           </div>
 
@@ -412,7 +419,7 @@ export const Coaches: React.FC = () => {
       {/* Directory Grid */}
       {filteredList.length === 0 ? (
         <div className="text-center py-16 text-neutral-500 text-sm">
-          No verified coaches matched your filter parameters.
+          Không tìm thấy huấn luyện viên nào phù hợp với bộ lọc của bạn.
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -446,11 +453,11 @@ export const Coaches: React.FC = () => {
 
               <div className="border-t border-darkborder/50 pt-4 flex justify-between items-center mt-auto">
                 <div>
-                  <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider">Hourly Rate</span>
+                  <span className="text-[10px] text-neutral-500 block uppercase font-bold tracking-wider">Học phí / giờ</span>
                   <span className="text-gold font-bold text-sm">{coach.hourlyRate.toLocaleString()} VND</span>
                 </div>
                 <Button size="sm" variant="gold" onClick={() => navigate(`/coaches/${coach.uid}`)}>
-                  View Slots
+                  Xem lịch học
                 </Button>
               </div>
             </Card>

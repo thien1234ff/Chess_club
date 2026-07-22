@@ -110,6 +110,15 @@ export const Profile: React.FC = () => {
       // Prefill upgrade states
       setRequestFullName(profile.fullName);
 
+      if (isOwn && searchParams.get('applyCoach') === 'true') {
+        setIsUpgradeModalOpen(true);
+        setRequestRole('coach');
+        // Clear param
+        const newParams = new URLSearchParams(searchParams);
+        newParams.delete('applyCoach');
+        setSearchParams(newParams, { replace: true });
+      }
+
       // Load specific tab contents
       await loadTabContents(profile.uid, currentTab);
     } catch (err) {
