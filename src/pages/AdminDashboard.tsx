@@ -65,7 +65,7 @@ export const AdminDashboard: React.FC = () => {
       }
       setReports(listReports);
 
-      // 2. Load Managed Clubs for Current User
+      // 2. Load Managed Clubs for Current User (Creator automatically recognized as President)
       if (currentUser) {
         const allClubs = await clubService.getClubs();
         const managed: { club: Club; userRole: ClubMemberRole }[] = [];
@@ -74,7 +74,13 @@ export const AdminDashboard: React.FC = () => {
           const members = await clubService.getMembers(c.id);
           const memberObj = members.find(m => m.user.uid === currentUser.uid);
           
-          if (c.creatorId === currentUser.uid) {
+          const isCreator = Boolean(
+            (c.creatorId && c.creatorId === currentUser.uid) ||
+            (c.creatorId && c.creatorId === currentUser.username) ||
+            (c.creatorId && c.creatorId === currentUser.email)
+          );
+
+          if (isCreator) {
             managed.push({ club: c, userRole: 'president' });
           } else if (memberObj && (memberObj.member.role === 'president' || memberObj.member.role === 'vice_president' || memberObj.member.role === 'admin')) {
             managed.push({ club: c, userRole: memberObj.member.role });
@@ -83,8 +89,15 @@ export const AdminDashboard: React.FC = () => {
 
         setMyClubs(managed);
 
-        if (managed.length > 0 && (!selectedClubId || !managed.some(m => m.club.id === selectedClubId))) {
-          setSelectedClubId(managed[0].club.id);
+        if (managed.length > 0) {
+          if (!selectedClubId || !managed.some(m => m.club.id === selectedClubId)) {
+            setSelectedClubId(managed[0].club.id);
+          }
+          if (!isSystemAdmin) {
+            setMainMode('club');
+          }
+        } else if (!isSystemAdmin) {
+          setMainMode('club');
         }
       }
     } catch (err) {
@@ -325,19 +338,17 @@ export const AdminDashboard: React.FC = () => {
           </button>
         )}
 
-        {myClubs.length > 0 && (
-          <button
-            onClick={() => setMainMode('club')}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all ${
-              mainMode === 'club'
-                ? 'bg-gold text-charcoal shadow-lg shadow-gold/20'
-                : 'text-neutral-400 hover:text-white hover:bg-darkborder/50'
-            }`}
-          >
-            <Building size={16} />
-            <span>🏰 Quản lý Câu lạc bộ ({myClubs.length})</span>
-          </button>
-        )}
+        <button
+          onClick={() => setMainMode('club')}
+          className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all ${
+            mainMode === 'club'
+              ? 'bg-gold text-charcoal shadow-lg shadow-gold/20'
+              : 'text-neutral-400 hover:text-white hover:bg-darkborder/50'
+          }`}
+        >
+          <Building size={16} />
+          <span>🏰 Quản lý Câu lạc bộ ({myClubs.length})</span>
+        </button>
       </div>
 
       {/* MODE 1: SYSTEM ADMIN DASHBOARD */}
