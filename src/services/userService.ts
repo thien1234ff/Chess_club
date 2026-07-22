@@ -73,20 +73,42 @@ class UserService {
   }
 
   // Submit request for verified roles (coach, club_admin, tournament_organizer)
-  async submitRoleRequest(uid: string, requestedRole: UserRole, details: { bio: string; experience?: number; rates?: number }): Promise<void> {
-    // In our system, submitting a role request puts a pending status. 
-    // We represent this by adding requested fields or saving a Report/Request document.
-    // Let's implement it by updating the user profile with pending role info, 
-    // and sending an admin alert/report.
+  async submitRoleRequest(
+    uid: string, 
+    requestedRole: UserRole, 
+    details: {
+      fullName: string;
+      fideId?: string;
+      fideRating?: number;
+      chesscomUsername?: string;
+      chesscomElo?: number;
+      chessExperienceYears: number;
+      coachingExperienceYears: number;
+      specializations: string[];
+      teachingFormat: 'online' | 'offline' | 'both';
+      hourlyRate: number;
+      bio: string;
+      proofUrl?: string;
+    }
+  ): Promise<void> {
     const patch = {
-      bio: details.bio,
       // Store metadata indicating pending approval
       roleRequest: {
         role: requestedRole,
-        experienceYears: details.experience || 0,
-        hourlyRate: details.rates || 0,
         status: 'pending' as const,
-        submittedAt: new Date().toISOString()
+        submittedAt: new Date().toISOString(),
+        fullName: details.fullName,
+        fideId: details.fideId,
+        fideRating: details.fideRating,
+        chesscomUsername: details.chesscomUsername,
+        chesscomElo: details.chesscomElo,
+        chessExperienceYears: details.chessExperienceYears,
+        coachingExperienceYears: details.coachingExperienceYears,
+        specializations: details.specializations,
+        teachingFormat: details.teachingFormat,
+        hourlyRate: details.hourlyRate,
+        bio: details.bio,
+        proofUrl: details.proofUrl
       }
     };
     
@@ -96,10 +118,10 @@ class UserService {
     if (requestedRole === 'coach') {
       await this.createOrUpdateCoachProfile(uid, {
         verified: false,
-        experienceYears: details.experience || 0,
-        hourlyRate: details.rates || 0,
+        experienceYears: details.coachingExperienceYears,
+        hourlyRate: details.hourlyRate,
         teachingMethodology: details.bio,
-        specializations: ['beginner'],
+        specializations: details.specializations.length > 0 ? details.specializations : ['Beginner'],
         languages: ['Vietnamese'],
         rating: 5.0,
         reviewsCount: 0,
@@ -114,8 +136,16 @@ class UserService {
 
     // Submit Report/Alert for admin moderation
     if (isFirebaseMode && db) {
-      // In firebase we'd push to a 'roleRequests' or 'reports' collection
       // For this MVP, we can write a simple report document
+      const { collection, addDoc } = await import('firebase/firestore');
+      await addDoc(collection(db, 'reports'), {
+        reporterId: uid,
+        targetType: 'user',
+        targetId: uid,
+        reason: `Yêu cầu phê duyệt vai trò: ${requestedRole.toUpperCase()} cho kì thủ ${details.fullName}.`,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      });
     } else {
       const reports = MockDB.getCollection<any>('REPORTS');
       reports.push({
@@ -123,7 +153,7 @@ class UserService {
         reporterId: uid,
         targetType: 'user',
         targetId: uid,
-        reason: `Role Request: Approve ${requestedRole} status for user ${uid}.`,
+        reason: `Yêu cầu phê duyệt vai trò: ${requestedRole.toUpperCase()} cho kì thủ ${details.fullName}.`,
         status: 'pending',
         createdAt: new Date().toISOString()
       });

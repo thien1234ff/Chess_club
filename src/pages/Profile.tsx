@@ -55,8 +55,19 @@ export const Profile: React.FC = () => {
   // Upgrade Role States
   const [requestRole, setRequestRole] = useState<UserRole>('coach');
   const [requestBio, setRequestBio] = useState('');
-  const [requestExperience, setRequestExperience] = useState(2);
-  const [requestRates, setRequestRates] = useState(200000);
+  
+  // Expanded Coach Upgrade states
+  const [requestFullName, setRequestFullName] = useState('');
+  const [requestFideId, setRequestFideId] = useState('');
+  const [requestFideRating, setRequestFideRating] = useState<number | ''>('');
+  const [requestChesscomUsername, setRequestChesscomUsername] = useState('');
+  const [requestChesscomElo, setRequestChesscomElo] = useState<number | ''>('');
+  const [requestChessExperience, setRequestChessExperience] = useState(5);
+  const [requestCoachingExperience, setRequestCoachingExperience] = useState(2);
+  const [requestSpecializations, setRequestSpecializations] = useState<string[]>(['Beginner', 'Tactics']);
+  const [requestTeachingFormat, setRequestTeachingFormat] = useState<'online' | 'offline' | 'both'>('both');
+  const [requestHourlyRate, setRequestHourlyRate] = useState(200000);
+  const [requestProofUrl, setRequestProofUrl] = useState('');
 
   // Counts
   const [followersCount, setFollowersCount] = useState(0);
@@ -68,7 +79,7 @@ export const Profile: React.FC = () => {
     try {
       const profile = await userService.getUser(id);
       if (!profile) {
-        addToast('User profile not found.', 'error');
+        addToast('Không tìm thấy thông tin kì thủ.', 'error');
         navigate('/');
         return;
       }
@@ -95,6 +106,9 @@ export const Profile: React.FC = () => {
       setEditRapid(profile.ratings.rapid);
       setEditBlitz(profile.ratings.blitz);
       setEditClassical(profile.ratings.classical);
+
+      // Prefill upgrade states
+      setRequestFullName(profile.fullName);
 
       // Load specific tab contents
       await loadTabContents(profile.uid, currentTab);
@@ -187,16 +201,39 @@ export const Profile: React.FC = () => {
     if (!currentUser) return;
 
     try {
-      await userService.submitRoleRequest(currentUser.uid, requestRole, {
-        bio: requestBio,
-        experience: Number(requestExperience),
-        rates: Number(requestRates)
-      });
-      addToast('Request submitted. An administrator will review your application.', 'success');
+      if (requestRole === 'coach') {
+        await userService.submitRoleRequest(currentUser.uid, 'coach', {
+          fullName: requestFullName || currentUser.fullName,
+          fideId: requestFideId || undefined,
+          fideRating: requestFideRating ? Number(requestFideRating) : undefined,
+          chesscomUsername: requestChesscomUsername || undefined,
+          chesscomElo: requestChesscomElo ? Number(requestChesscomElo) : undefined,
+          chessExperienceYears: Number(requestChessExperience),
+          coachingExperienceYears: Number(requestCoachingExperience),
+          specializations: requestSpecializations,
+          teachingFormat: requestTeachingFormat,
+          hourlyRate: Number(requestHourlyRate),
+          bio: requestBio,
+          proofUrl: requestProofUrl || undefined
+        });
+      } else {
+        // Fallback parameter mappings for non-coach requests
+        await userService.submitRoleRequest(currentUser.uid, requestRole, {
+          fullName: currentUser.fullName,
+          chessExperienceYears: 0,
+          coachingExperienceYears: 0,
+          specializations: [],
+          teachingFormat: 'online',
+          hourlyRate: 0,
+          bio: requestBio
+        });
+      }
+      addToast('Hồ sơ ứng tuyển đã được nộp thành công! Quản trị viên sẽ sớm xét duyệt hồ sơ của bạn.', 'success');
       setIsUpgradeModalOpen(false);
       fetchProfileData();
     } catch (err) {
-      addToast('Failed to submit application.', 'error');
+      console.error(err);
+      addToast('Nộp hồ sơ ứng tuyển thất bại.', 'error');
     }
   };
 
@@ -646,9 +683,79 @@ export const Profile: React.FC = () => {
           />
 
           {requestRole === 'coach' && (
-            <div className="grid grid-cols-2 gap-4 border-t border-darkborder pt-4">
-              <Input label="Kinh nghiệm (Số năm)" type="number" value={requestExperience} onChange={(e) => setRequestExperience(Number(e.target.value))} />
-              <Input label="Học phí một giờ (VND)" type="number" value={requestRates} onChange={(e) => setRequestRates(Number(e.target.value))} />
+            <div className="space-y-4 border-t border-darkborder pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Họ và Tên Huấn luyện viên" type="text" value={requestFullName} onChange={(e) => setRequestFullName(e.target.value)} required />
+                <Input label="Mức học phí dự kiến (VNĐ/giờ)" type="number" value={requestHourlyRate} onChange={(e) => setRequestHourlyRate(Number(e.target.value))} required />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Kinh nghiệm chơi cờ (Số năm)" type="number" value={requestChessExperience} onChange={(e) => setRequestChessExperience(Number(e.target.value))} required />
+                <Input label="Kinh nghiệm huấn luyện (Số năm)" type="number" value={requestCoachingExperience} onChange={(e) => setRequestCoachingExperience(Number(e.target.value))} required />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input label="FIDE ID (Nếu có)" type="text" value={requestFideId} onChange={(e) => setRequestFideId(e.target.value)} placeholder="Ví dụ: 12401137" />
+                <Input label="Hệ số Elo FIDE (Nếu có)" type="number" value={requestFideRating} onChange={(e) => setRequestFideRating(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Ví dụ: 2200" />
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Hình thức giảng dạy</label>
+                  <select
+                    value={requestTeachingFormat}
+                    onChange={(e) => setRequestTeachingFormat(e.target.value as any)}
+                    className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                  >
+                    <option value="online">Online (Trực tuyến)</option>
+                    <option value="offline">Offline (Trực tiếp)</option>
+                    <option value="both">Cả hai (Online & Offline)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Username Chess.com (Nếu có)" type="text" value={requestChesscomUsername} onChange={(e) => setRequestChesscomUsername(e.target.value)} placeholder="Ví dụ: magnuscarlsen" />
+                <Input label="Elo Chess.com (Tự nhập, nếu có)" type="number" value={requestChesscomElo} onChange={(e) => setRequestChesscomElo(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Ví dụ: 2500" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Chuyên môn giảng dạy</label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {['Beginner', 'Opening', 'Tactics', 'Middlegame', 'Endgame', 'Game Analysis'].map((spec) => {
+                    const mappedNames: Record<string, string> = {
+                      Beginner: 'Cơ bản (Beginner)',
+                      Opening: 'Khai cuộc (Opening)',
+                      Tactics: 'Chiến thuật (Tactics)',
+                      Middlegame: 'Trung cuộc (Middlegame)',
+                      Endgame: 'Tàn cuộc (Endgame)',
+                      'Game Analysis': 'Phân tích ván đấu'
+                    };
+                    return (
+                      <label key={spec} className="flex items-center gap-2 text-xs text-neutral-300 cursor-pointer bg-charcoal p-2.5 rounded-lg border border-darkborder hover:border-gold transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={requestSpecializations.includes(spec)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setRequestSpecializations(prev => [...prev, spec]);
+                            } else {
+                              setRequestSpecializations(prev => prev.filter(s => s !== spec));
+                            }
+                          }}
+                          className="rounded border-darkborder text-gold focus:ring-gold bg-charcoal"
+                        />
+                        <span>{mappedNames[spec]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <Input 
+                label="Đường dẫn Ảnh minh chứng (huy chương, chứng chỉ, Elo,... nếu có)" 
+                type="text" 
+                value={requestProofUrl} 
+                onChange={(e) => setRequestProofUrl(e.target.value)} 
+                placeholder="Ví dụ: https://imgur.com/chung-chi.jpg" 
+              />
             </div>
           )}
 

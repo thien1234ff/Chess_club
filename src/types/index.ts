@@ -39,10 +39,22 @@ export interface User {
   needsSetup?: boolean;
   roleRequest?: {
     role: UserRole;
-    experienceYears: number;
-    hourlyRate: number;
     status: 'pending' | 'approved' | 'rejected';
     submittedAt: string;
+    
+    // Expanded Coach Application Fields
+    fullName: string;
+    fideId?: string;
+    fideRating?: number;
+    chesscomUsername?: string;
+    chesscomElo?: number;
+    chessExperienceYears: number;
+    coachingExperienceYears: number;
+    specializations: string[];
+    teachingFormat: 'online' | 'offline' | 'both';
+    hourlyRate: number;
+    bio: string;
+    proofUrl?: string;
   };
 }
 

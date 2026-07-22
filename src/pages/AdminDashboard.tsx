@@ -193,23 +193,63 @@ export const AdminDashboard: React.FC = () => {
               {pendingApplications.map((appUser) => {
                 const req = (appUser as any).roleRequest;
                 return (
-                  <div key={appUser.uid} className="pt-4 first:pt-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="space-y-2">
+                  <div key={appUser.uid} className="pt-4 first:pt-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div className="space-y-3 flex-grow">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-white text-sm">{appUser.fullName}</span>
-                        <Badge variant="gold">Requests: {req.role.toUpperCase()}</Badge>
+                        <span className="font-bold text-white text-base">{req.fullName || appUser.fullName}</span>
+                        <Badge variant="gold">Yêu cầu: {req.role.toUpperCase()}</Badge>
                       </div>
-                      <p className="text-xs text-neutral-400 leading-relaxed italic pr-6">" {appUser.bio} "</p>
-                      <div className="text-[10px] text-neutral-500 space-x-4">
-                        <span>Experience: {req.experienceYears} Years</span>
-                        <span>Hourly Rates: {req.hourlyRate.toLocaleString()} VND</span>
-                        <span>Applied: {new Date(req.submittedAt).toLocaleDateString()}</span>
-                      </div>
+                      
+                      {req.role === 'coach' ? (
+                        <div className="bg-charcoal/50 p-4 rounded-xl border border-darkborder space-y-3 text-xs max-w-3xl">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-neutral-400">
+                            <div>Kinh nghiệm chơi cờ: <span className="text-white font-bold">{req.chessExperienceYears} năm</span></div>
+                            <div>Kinh nghiệm dạy: <span className="text-gold font-bold">{req.coachingExperienceYears} năm</span></div>
+                            <div>Mức giá: <span className="text-emerald-400 font-bold">{req.hourlyRate?.toLocaleString()} VND/giờ</span></div>
+                            <div>FIDE ID: <span className="text-white">{req.fideId || 'Không có'}</span></div>
+                            <div>FIDE Rating: <span className="text-white font-bold">{req.fideRating || 'Không có'}</span></div>
+                            <div>Hình thức: <span className="text-white capitalize">{req.teachingFormat}</span></div>
+                            <div>Chess.com: <span className="text-white">{req.chesscomUsername || 'Không có'}</span></div>
+                            <div>Chess.com Elo: <span className="text-white font-bold">{req.chesscomElo || 'Không có'}</span></div>
+                            <div>Ngày nộp: <span className="text-neutral-500">{new Date(req.submittedAt).toLocaleDateString('vi-VN')}</span></div>
+                          </div>
+                          
+                          <div className="border-t border-darkborder/50 pt-2">
+                            <span className="text-neutral-500 font-bold block mb-1">Chuyên môn giảng dạy:</span>
+                            <div className="flex gap-1.5 flex-wrap">
+                              {req.specializations?.map((s: string) => (
+                                <Badge key={s} variant="default">{s}</Badge>
+                              )) || <span className="text-neutral-500 italic">Chưa chọn</span>}
+                            </div>
+                          </div>
+
+                          <div className="border-t border-darkborder/50 pt-2 text-neutral-300">
+                            <span className="text-neutral-500 font-bold block mb-1">Giới thiệu bản thân / Phương pháp:</span>
+                            <p className="italic">" {req.bio} "</p>
+                          </div>
+
+                          {req.proofUrl && (
+                            <div className="border-t border-darkborder/50 pt-2">
+                              <span className="text-neutral-500 font-bold block mb-1">Ảnh minh chứng:</span>
+                              <a href={req.proofUrl} target="_blank" rel="noopener noreferrer" className="text-gold hover:underline font-semibold flex items-center gap-1">
+                                🖼️ Xem tài liệu chứng chỉ / ảnh thành tích
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-xs text-neutral-400 leading-relaxed italic pr-6">" {req.bio} "</p>
+                          <div className="text-[10px] text-neutral-500 space-x-4">
+                            <span>Ngày nộp: {new Date(req.submittedAt).toLocaleDateString('vi-VN')}</span>
+                          </div>
+                        </>
+                      )}
                     </div>
 
                     <div className="flex gap-2 shrink-0">
-                      <Button variant="gold" size="sm" onClick={() => handleApproveApplication(appUser.uid)}>Approve</Button>
-                      <Button variant="outline" size="sm" className="text-red-500" onClick={() => addToast('Upgrade declined.', 'info')}>Decline</Button>
+                      <Button variant="gold" size="sm" onClick={() => handleApproveApplication(appUser.uid)}>Duyệt</Button>
+                      <Button variant="outline" size="sm" className="text-red-500" onClick={() => addToast('Từ chối hồ sơ.', 'info')}>Từ chối</Button>
                     </div>
                   </div>
                 );
