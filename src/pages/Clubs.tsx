@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
+import { Modal } from '../components/ui/Modal';
 import Spinner from '../components/ui/Spinner';
 import ImageUploader from '../components/ui/ImageUploader';
 import { 
@@ -46,6 +47,7 @@ export const Clubs: React.FC = () => {
 
   // Creation State
   const [isCreating, setIsCreating] = useState(false);
+  const [createdPendingClubName, setCreatedPendingClubName] = useState<string | null>(null);
 
   // View States
   const currentTab = searchParams.get('tab') || 'discover';
@@ -112,7 +114,16 @@ export const Clubs: React.FC = () => {
         socialLinks: { facebook, website }
       });
 
-      addToast('Đã gửi đơn đăng ký thành lập CLB! Vui lòng chờ Admin phê duyệt trước khi công khai.', 'info');
+      const newClubName = name;
+      setCreatedPendingClubName(newClubName);
+      setName('');
+      setDescription('');
+      setLogoUrl('');
+      setCoverUrl('');
+      setFacebook('');
+      setWebsite('');
+
+      addToast('Đã gửi đơn đăng ký thành lập CLB! Vui lòng chờ Admin phê duyệt.', 'info');
       setSearchParams({ tab: 'discover' });
     } catch (err) {
       addToast('Tạo câu lạc bộ thất bại.', 'error');
@@ -564,6 +575,40 @@ export const Clubs: React.FC = () => {
           </form>
         </Card>
       )}
+      {/* PENDING CLUB CREATION SUCCESS MODAL */}
+      <Modal
+        isOpen={Boolean(createdPendingClubName)}
+        onClose={() => setCreatedPendingClubName(null)}
+        title="📩 Đơn Đăng Ký Thành Lập CLB Đã Được Gửi!"
+      >
+        <div className="text-center space-y-4 py-2">
+          <div className="h-16 w-16 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner">
+            🏰
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-amber-400 tracking-widest block mb-1">Đang chờ Ban Quản Trị Duyệt</span>
+            <h3 className="text-lg font-bold text-white font-display">Câu lạc bộ "{createdPendingClubName}"</h3>
+          </div>
+          <p className="text-xs text-neutral-300 leading-relaxed max-w-md mx-auto">
+            Đơn xin thành lập CLB của bạn đã được chuyển đến <strong className="text-gold">Admin hệ thống</strong>. Sau khi Admin duyệt, CLB sẽ chính thức xuất hiện trên trang Khám phá!
+          </p>
+          <div className="bg-charcoal/80 p-4 rounded-xl border border-darkborder text-xs text-neutral-400 text-left space-y-2">
+            <div className="font-bold text-gold flex items-center gap-1.5">
+              💡 Hướng dẫn cho Chủ nhiệm:
+            </div>
+            <p>1. Bạn có thể bấm nút <strong>Bảng Quản Trị</strong> trên thanh Menu để theo dõi tiến độ và quản lý CLB.</p>
+            <p>2. Khi Admin phê duyệt, hệ thống sẽ gửi thông báo tự động tới chuông thông báo của bạn.</p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row gap-2">
+            <Button variant="outline" className="w-full text-xs" onClick={() => setCreatedPendingClubName(null)}>
+              Đóng cửa sổ
+            </Button>
+            <Button variant="gold" className="w-full text-xs" onClick={() => { setCreatedPendingClubName(null); navigate('/admin'); }}>
+              Vào Bảng Quản Trị CLB 👑
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
