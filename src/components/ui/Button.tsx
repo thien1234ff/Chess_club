@@ -50,7 +50,7 @@ export const Button: React.FC<ButtonProps> = ({
         </svg>
       )}
       {!isLoading && leftIcon && <span className="mr-2 inline-flex">{leftIcon}</span>}
-      <span>{children}</span>
+      <>{children}</>
       {!isLoading && rightIcon && <span className="ml-2 inline-flex">{rightIcon}</span>}
     </button>
   );
