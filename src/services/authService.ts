@@ -25,7 +25,33 @@ class AuthService {
     if (isFirebaseMode && auth) {
       return auth.onAuthStateChanged(async (firebaseUser) => {
         if (firebaseUser) {
-          const profile = await this.getUserProfile(firebaseUser.uid);
+          let profile = await this.getUserProfile(firebaseUser.uid);
+          if (!profile && db) {
+            // Safeguard against Google signup race conditions: create Firestore record immediately
+            profile = {
+              uid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              username: firebaseUser.displayName 
+                ? firebaseUser.displayName.toLowerCase().replace(/\s+/g, '_') 
+                : `user_${firebaseUser.uid.substring(0, 8)}`,
+              fullName: firebaseUser.displayName || 'Google Chess Player',
+              bio: 'Welcome to ChessHub!',
+              avatarUrl: firebaseUser.photoURL || '',
+              coverUrl: '',
+              role: 'player',
+              title: '',
+              ratings: { rapid: 1200, blitz: 1200, classical: 1200, puzzle: 1200 },
+              stats: { gamesPlayed: 0, wins: 0, draws: 0, losses: 0 },
+              location: { city: 'Hanoi', country: 'VN' },
+              joinedAt: new Date().toISOString()
+            };
+            try {
+              // Write directly to Firestore using static imports
+              await setDoc(doc(db, 'users', firebaseUser.uid), profile);
+            } catch (err) {
+              console.error('Error auto-creating profile in auth listener:', err);
+            }
+          }
           callback(profile);
         } else {
           callback(null);
