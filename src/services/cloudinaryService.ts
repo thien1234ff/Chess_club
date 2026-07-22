@@ -4,8 +4,8 @@
  */
 
 export const uploadImageToCloudinary = async (file: File): Promise<string> => {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'demo';
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'unsigned_preset';
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dx17fwjii';
+  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'chesshub_preset';
 
   // Validate file type
   if (!file.type.startsWith('image/')) {
