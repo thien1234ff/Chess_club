@@ -269,7 +269,7 @@ export const Profile: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <Calendar size={14} className="text-neutral-500" />
-                <span>Joined {new Date(userProfile.joinedAt).toLocaleDateString()}</span>
+                <span>Gia nhập ngày {new Date(userProfile.joinedAt).toLocaleDateString('vi-VN')}</span>
               </div>
             </div>
 
@@ -277,11 +277,11 @@ export const Profile: React.FC = () => {
             <div className="flex items-center justify-center lg:justify-start gap-6 border-y border-darkborder py-3 mb-6 text-xs">
               <div>
                 <span className="font-bold text-white block text-sm">{followersCount}</span>
-                <span className="text-neutral-500 uppercase tracking-wider font-semibold">Followers</span>
+                <span className="text-neutral-500 uppercase tracking-wider font-semibold">Người theo dõi</span>
               </div>
               <div>
                 <span className="font-bold text-white block text-sm">{followingCount}</span>
-                <span className="text-neutral-500 uppercase tracking-wider font-semibold">Following</span>
+                <span className="text-neutral-500 uppercase tracking-wider font-semibold">Đang theo dõi</span>
               </div>
             </div>
 
@@ -295,7 +295,7 @@ export const Profile: React.FC = () => {
                     onClick={() => setIsEditModalOpen(true)}
                   >
                     <Settings size={14} />
-                    <span>Edit Profile</span>
+                    <span>Chỉnh sửa Hồ sơ</span>
                   </Button>
 
                   {userProfile.role === 'player' && (
@@ -304,7 +304,7 @@ export const Profile: React.FC = () => {
                       className="w-full text-xs font-semibold"
                       onClick={() => setIsUpgradeModalOpen(true)}
                     >
-                      Apply for Coach/Admin
+                      Đăng ký HLV / Ban tổ chức
                     </Button>
                   )}
                 </>
@@ -593,68 +593,68 @@ export const Profile: React.FC = () => {
       </div>
 
       {/* Edit Profile Modal */}
-      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Edit Chess Profile">
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Chỉnh sửa Hồ sơ cờ vua">
         <form onSubmit={handleEditProfileSubmit} className="space-y-4">
-          <Input label="Full Name" type="text" value={editFullName} onChange={(e) => setEditFullName(e.target.value)} required />
-          <Input label="Bio" isTextArea value={editBio} onChange={(e) => setEditBio(e.target.value)} />
-          <Input label="City" type="text" value={editCity} onChange={(e) => setEditCity(e.target.value)} />
-          <Input label="FIDE ID" type="text" value={editFideId} onChange={(e) => setEditFideId(e.target.value)} placeholder="e.g. 12401137" />
+          <Input label="Họ và Tên" type="text" value={editFullName} onChange={(e) => setEditFullName(e.target.value)} required />
+          <Input label="Giới thiệu bản thân" isTextArea value={editBio} onChange={(e) => setEditBio(e.target.value)} />
+          <Input label="Thành phố" type="text" value={editCity} onChange={(e) => setEditCity(e.target.value)} />
+          <Input label="FIDE ID" type="text" value={editFideId} onChange={(e) => setEditFideId(e.target.value)} placeholder="Ví dụ: 12401137" />
           
           <div className="grid grid-cols-3 gap-3 border-t border-darkborder pt-4">
-            <Input label="Rapid Rating" type="number" value={editRapid} onChange={(e) => setEditRapid(Number(e.target.value))} />
-            <Input label="Blitz Rating" type="number" value={editBlitz} onChange={(e) => setEditBlitz(Number(e.target.value))} />
-            <Input label="Classical Rating" type="number" value={editClassical} onChange={(e) => setEditClassical(Number(e.target.value))} />
+            <Input label="Hệ số Rapid" type="number" value={editRapid} onChange={(e) => setEditRapid(Number(e.target.value))} />
+            <Input label="Hệ số Blitz" type="number" value={editBlitz} onChange={(e) => setEditBlitz(Number(e.target.value))} />
+            <Input label="Hệ số Classical" type="number" value={editClassical} onChange={(e) => setEditClassical(Number(e.target.value))} />
           </div>
 
           <div className="flex justify-end gap-2 pt-4 border-t border-darkborder">
-            <Button variant="outline" type="button" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-            <Button variant="gold" type="submit">Save Changes</Button>
+            <Button variant="outline" type="button" onClick={() => setIsEditModalOpen(false)}>Hủy</Button>
+            <Button variant="gold" type="submit">Lưu thay đổi</Button>
           </div>
         </form>
       </Modal>
 
       {/* Request Upgrade Role Modal */}
-      <Modal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} title="Verify Special Chess Status">
+      <Modal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} title="Đăng ký danh hiệu đặc quyền">
         <form onSubmit={handleUpgradeRoleSubmit} className="space-y-4 text-left">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Request Role Target</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Vai trò ứng tuyển</label>
             <select
               value={requestRole}
               onChange={(e) => setRequestRole(e.target.value as UserRole)}
               className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold"
             >
-              <option value="coach">Verified Coach</option>
-              <option value="club_admin">Club Admin Representative</option>
-              <option value="tournament_organizer">Tournament Organizer</option>
+              <option value="coach">Huấn luyện viên xác minh</option>
+              <option value="club_admin">Ban quản trị Câu lạc bộ</option>
+              <option value="tournament_organizer">Ban tổ chức giải đấu</option>
             </select>
           </div>
 
           <Input 
-            label="Application Statement" 
+            label="Hồ sơ năng lực / Giới thiệu chi tiết" 
             isTextArea 
             rows={4} 
             value={requestBio} 
             onChange={(e) => setRequestBio(e.target.value)} 
             placeholder={
               requestRole === 'coach' 
-                ? 'Detail your coaching experience, chess achievements, titles, and teaching methodologies...'
+                ? 'Mô tả kinh nghiệm huấn luyện, danh hiệu cờ vua, thành tích thi đấu và phương pháp giảng dạy...'
                 : requestRole === 'club_admin'
-                  ? 'Detail the name, logo, target city, and founded history of the club you represent...'
-                  : 'Detail past chess tournaments you have successfully hosted, and your association with local federations...'
+                  ? 'Mô tả tên câu lạc bộ, biểu tượng, địa phương hoạt động và lịch sử câu lạc bộ bạn đại diện...'
+                  : 'Mô tả các giải đấu cờ vua bạn từng tổ chức thành công, liên kết với liên đoàn cờ địa phương...'
             }
             required
           />
 
           {requestRole === 'coach' && (
             <div className="grid grid-cols-2 gap-4 border-t border-darkborder pt-4">
-              <Input label="Experience (Years)" type="number" value={requestExperience} onChange={(e) => setRequestExperience(Number(e.target.value))} />
-              <Input label="Hourly Rates (VND)" type="number" value={requestRates} onChange={(e) => setRequestRates(Number(e.target.value))} />
+              <Input label="Kinh nghiệm (Số năm)" type="number" value={requestExperience} onChange={(e) => setRequestExperience(Number(e.target.value))} />
+              <Input label="Học phí một giờ (VND)" type="number" value={requestRates} onChange={(e) => setRequestRates(Number(e.target.value))} />
             </div>
           )}
 
           <div className="flex justify-end gap-2 pt-4 border-t border-darkborder">
-            <Button variant="outline" type="button" onClick={() => setIsUpgradeModalOpen(false)}>Cancel</Button>
-            <Button variant="gold" type="submit">Submit Application</Button>
+            <Button variant="outline" type="button" onClick={() => setIsUpgradeModalOpen(false)}>Hủy</Button>
+            <Button variant="gold" type="submit">Nộp hồ sơ ứng tuyển</Button>
           </div>
         </form>
       </Modal>

@@ -42,13 +42,13 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Community', path: '/community' },
-    { label: 'Coaches', path: '/coaches' },
-    { label: 'Tournaments', path: '/tournaments' },
-    { label: 'Clubs', path: '/clubs' },
-    { label: 'Learn', path: '/learn' },
-    { label: 'Rankings', path: '/rankings' }
+    { label: 'Trang chủ', path: '/' },
+    { label: 'Cộng đồng', path: '/community' },
+    { label: 'Huấn luyện viên', path: '/coaches' },
+    { label: 'Giải đấu', path: '/tournaments' },
+    { label: 'Câu lạc bộ', path: '/clubs' },
+    { label: 'Học tập', path: '/learn' },
+    { label: 'Xếp hạng', path: '/rankings' }
   ];
 
   const isActive = (path: string) => {
@@ -91,7 +91,7 @@ export const Navbar: React.FC = () => {
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Tìm kiếm..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-charcoal border border-darkborder focus:border-gold rounded-lg px-3 py-1.5 pl-8 text-xs text-ivory placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-gold w-48 transition-all"
@@ -102,7 +102,7 @@ export const Navbar: React.FC = () => {
             {currentUser ? (
               <>
                 {/* DM Bell */}
-                <Link to="/messages" className="relative p-1.5 text-neutral-400 hover:text-white transition-colors" aria-label="Messages">
+                <Link to="/messages" className="relative p-1.5 text-neutral-400 hover:text-white transition-colors" aria-label="Tin nhắn">
                   <MessageSquare size={18} />
                   {unreadMsgs > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-gold text-charcoal font-bold text-[9px] h-4 w-4 rounded-full flex items-center justify-center border border-darkcard">
@@ -112,7 +112,7 @@ export const Navbar: React.FC = () => {
                 </Link>
 
                 {/* Notifications Bell */}
-                <Link to={`/profile/${currentUser.uid}?tab=notifications`} className="relative p-1.5 text-neutral-400 hover:text-white transition-colors" aria-label="Notifications">
+                <Link to={`/profile/${currentUser.uid}?tab=notifications`} className="relative p-1.5 text-neutral-400 hover:text-white transition-colors" aria-label="Thông báo">
                   <Bell size={18} />
                   {unreadNotifs > 0 && (
                     <span className="absolute -top-0.5 -right-0.5 bg-gold text-charcoal font-bold text-[9px] h-4 w-4 rounded-full flex items-center justify-center border border-darkcard">
@@ -123,7 +123,7 @@ export const Navbar: React.FC = () => {
 
                 {/* Admin Status Icon */}
                 {(currentUser.role === 'admin' || currentUser.role === 'moderator') && (
-                  <Link to="/admin" className="p-1.5 text-amber-500 hover:text-amber-400 transition-colors" title="Admin Dashboard">
+                  <Link to="/admin" className="p-1.5 text-amber-500 hover:text-amber-400 transition-colors" title="Bảng điều khiển Admin">
                     <ShieldAlert size={18} />
                   </Link>
                 )}
@@ -149,7 +149,7 @@ export const Navbar: React.FC = () => {
                 <button
                   onClick={() => logout()}
                   className="p-1.5 text-neutral-400 hover:text-red-500 transition-colors cursor-pointer"
-                  title="Sign Out"
+                  title="Đăng xuất"
                 >
                   <LogOut size={18} />
                 </button>
@@ -157,10 +157,10 @@ export const Navbar: React.FC = () => {
             ) : (
               <div className="flex items-center gap-2">
                 <Link to="/auth">
-                  <Button variant="ghost" size="sm">Log In</Button>
+                  <Button variant="ghost" size="sm">Đăng nhập</Button>
                 </Link>
                 <Link to="/auth?register=true">
-                  <Button variant="gold" size="sm">Register</Button>
+                  <Button variant="gold" size="sm">Đăng ký</Button>
                 </Link>
               </div>
             )}

@@ -36,15 +36,15 @@ export const ProfileSetup: React.FC = () => {
 
   const validate = async () => {
     const newErrors: Record<string, string> = {};
-    if (!fullName.trim()) newErrors.fullName = 'Full name is required.';
+    if (!fullName.trim()) newErrors.fullName = 'Họ và tên là bắt buộc.';
     
     const cleanUsername = username.trim();
     if (!cleanUsername) {
-      newErrors.username = 'Username is required.';
+      newErrors.username = 'Tên đăng nhập là bắt buộc.';
     } else if (cleanUsername.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters.';
+      newErrors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
     } else if (!/^[a-zA-Z0-9_]+$/.test(cleanUsername)) {
-      newErrors.username = 'Username can only contain letters, numbers, and underscores.';
+      newErrors.username = 'Tên đăng nhập chỉ có thể chứa chữ cái, chữ số và dấu gạch dưới.';
     } else {
       // Check username uniqueness
       try {
@@ -61,11 +61,11 @@ export const ProfileSetup: React.FC = () => {
         }
         
         if (!isUnique) {
-          newErrors.username = 'Username is already taken.';
+          newErrors.username = 'Tên đăng nhập đã có người sử dụng.';
         }
       } catch (err) {
         console.error(err);
-        newErrors.username = 'Failed to verify username uniqueness.';
+        newErrors.username = 'Không thể xác minh tính duy nhất của tên đăng nhập.';
       }
     }
 
@@ -89,17 +89,17 @@ export const ProfileSetup: React.FC = () => {
           fullName,
           username: username.trim().toLowerCase(),
           location: { city, country: 'VN' },
-          bio: bio || `Hello! I'm ${fullName}, a new ChessHub player.`,
+          bio: bio || `Xin chào! Tôi là ${fullName}, thành viên mới của ChessHub.`,
           needsSetup: false // Mark setup completed!
         });
         
-        addToast('Profile setup completed successfully! Welcome to ChessHub.', 'success');
+        addToast('Thiết lập hồ sơ thành công! Chào mừng tới ChessHub.', 'success');
         await refreshProfile();
         navigate('/');
       }
     } catch (err: any) {
       console.error(err);
-      addToast(err.message || 'Failed to update profile details.', 'error');
+      addToast(err.message || 'Cập nhật thông tin thất bại.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -113,59 +113,59 @@ export const ProfileSetup: React.FC = () => {
         <div className="text-center mb-8">
           <span className="text-gold text-4xl font-bold font-display block mb-2">♟</span>
           <h2 className="text-2xl font-bold font-display text-ivory tracking-wide">
-            Complete Your Profile
+            Hoàn tất Hồ sơ của bạn
           </h2>
           <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider">
-            Choose a unique username and tell us about yourself to get started
+            Chọn một tên đăng nhập độc nhất và giới thiệu bản thân để bắt đầu
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <Input
-            label="Full Name"
+            label="Họ và Tên"
             type="text"
-            placeholder="e.g. Nguyễn Văn A"
+            placeholder="Ví dụ: Nguyễn Văn A"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             error={errors.fullName}
           />
 
           <Input
-            label="Username"
+            label="Tên đăng nhập"
             type="text"
-            placeholder="e.g. grandmaster_viet"
+            placeholder="Ví dụ: grandmaster_viet"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             error={errors.username}
-            helperText="At least 3 characters. Only letters, numbers, and underscores."
+            helperText="Tối thiểu 3 ký tự. Chỉ bao gồm chữ cái thường, số và dấu gạch dưới."
           />
 
           <div>
             <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-              City / Region
+              Thành phố / Khu vực
             </label>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
               className="w-full bg-charcoal border border-darkborder focus:border-gold rounded-lg px-3 py-2.5 text-sm text-ivory focus:outline-none focus:ring-1 focus:ring-gold transition-colors"
             >
-              <option value="Hanoi">Hanoi</option>
-              <option value="Ho Chi Minh City">Ho Chi Minh City (TP.HCM)</option>
-              <option value="Da Nang">Da Nang</option>
-              <option value="Can Tho">Can Tho</option>
-              <option value="Hai Phong">Hai Phong</option>
+              <option value="Hanoi">Hà Nội</option>
+              <option value="Ho Chi Minh City">TP. Hồ Chí Minh</option>
+              <option value="Da Nang">Đà Nẵng</option>
+              <option value="Can Tho">Cần Thơ</option>
+              <option value="Hai Phong">Hải Phòng</option>
               <option value="Nha Trang">Nha Trang</option>
-              <option value="Hue">Hue</option>
-              <option value="Other">Other / International</option>
+              <option value="Hue">Huế</option>
+              <option value="Other">Khác / Quốc tế</option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-              Short Bio
+              Giới thiệu bản thân
             </label>
             <textarea
-              placeholder="Tell other chess players about your favorite openings, goals, or hobbies..."
+              placeholder="Chia sẻ về sở thích cờ vua, khai cuộc yêu thích, hoặc mục tiêu thi đấu của bạn..."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={4}
@@ -179,7 +179,7 @@ export const ProfileSetup: React.FC = () => {
             className="w-full mt-6"
             isLoading={isLoading}
           >
-            Complete Setup & Start Playing
+            Hoàn tất thiết lập & Bắt đầu ngay
           </Button>
         </form>
       </Card>

@@ -92,21 +92,21 @@ export const Home: React.FC = () => {
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 bg-gold-muted border border-gold/20 px-3 py-1 rounded-full text-gold text-xs font-semibold uppercase tracking-wider">
               <Sparkles size={12} className="animate-pulse" />
-              <span>ChessHub Vietnam Ecosystem</span>
+              <span>Hệ sinh thái Cờ vua ChessHub Việt Nam</span>
             </div>
             <h1 className="text-4xl sm:text-6xl font-extrabold font-display text-white leading-tight">
-              Your Chess Journey <br />
-              <span className="text-gold">Starts Here.</span>
+              Hành trình Cờ vua của bạn <br />
+              <span className="text-gold">Bắt đầu từ đây.</span>
             </h1>
             <p className="text-lg text-neutral-400 max-w-xl">
-              Learn, connect, compete, and grow with the chess community. Discover professional FIDE coaches, join university clubs, and register for Swiss System tournaments.
+              Học tập, giao lưu, thi đấu và phát triển cùng cộng đồng cờ vua Việt Nam. Khám phá các huấn luyện viên FIDE chuyên nghiệp, tham gia câu lạc bộ và đăng ký các giải đấu hệ Thụy Sĩ.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
               <Button variant="gold" size="lg" onClick={() => navigate('/tournaments')} rightIcon={<Trophy size={18} />}>
-                Explore Tournaments
+                Khám phá Giải đấu
               </Button>
               <Button variant="outline" size="lg" onClick={() => navigate('/coaches')}>
-                Find a Chess Coach
+                Tìm Huấn luyện viên
               </Button>
             </div>
           </div>
@@ -117,8 +117,8 @@ export const Home: React.FC = () => {
             <div className="relative border-4 border-darkborder bg-darkcard rounded-3xl p-8 shadow-2xl flex flex-col items-center gap-6 max-w-sm w-full">
               <div className="text-7xl">👑</div>
               <div className="text-center">
-                <h3 className="font-display font-bold text-white tracking-wide">ChessHub Interactive Sandbox</h3>
-                <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Ready for Match Play</p>
+                <h3 className="font-display font-bold text-white tracking-wide">Giao diện Cờ vua ChessHub</h3>
+                <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Sẵn sàng thi đấu</p>
               </div>
               <div className="grid grid-cols-4 gap-2 w-full text-center py-2 border-t border-darkborder/50">
                 <div>
@@ -139,7 +139,7 @@ export const Home: React.FC = () => {
                 </div>
               </div>
               <Button variant="secondary" className="w-full text-xs font-semibold" onClick={() => navigate('/learn?tab=puzzles')}>
-                Solve Daily Puzzle
+                Giải thế cờ hàng ngày
               </Button>
             </div>
           </div>
@@ -151,9 +151,9 @@ export const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-8 border-b border-darkborder pb-4">
             <h2 className="text-2xl font-bold font-display text-white">
-              Search Results for <span className="text-gold">"{searchQuery}"</span>
+              Kết quả tìm kiếm cho <span className="text-gold">"{searchQuery}"</span>
             </h2>
-            <Link to="/" className="text-xs text-gold hover:underline font-bold uppercase tracking-wider">Clear Search</Link>
+            <Link to="/" className="text-xs text-gold hover:underline font-bold uppercase tracking-wider">Xóa tìm kiếm</Link>
           </div>
 
           <div className="space-y-8">
@@ -161,10 +161,10 @@ export const Home: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 flex items-center gap-2">
                 <Trophy size={16} />
-                <span>Tournaments ({filteredTours.length})</span>
+                <span>Giải đấu ({filteredTours.length})</span>
               </h3>
               {filteredTours.length === 0 ? (
-                <p className="text-sm text-neutral-500 italic pl-6">No matching tournaments found.</p>
+                <p className="text-sm text-neutral-500 italic pl-6">Không tìm thấy giải đấu phù hợp.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {filteredTours.map(tour => (
@@ -176,7 +176,7 @@ export const Home: React.FC = () => {
                       </div>
                       <div className="border-t border-darkborder pt-3 flex items-center justify-between mt-auto">
                         <span className="text-xs text-neutral-500 font-medium">📍 {tour.location.city}</span>
-                        <Button size="sm" onClick={() => navigate(`/tournaments/${tour.id}`)}>Details</Button>
+                        <Button size="sm" onClick={() => navigate(`/tournaments/${tour.id}`)}>Chi tiết</Button>
                       </div>
                     </Card>
                   ))}
@@ -188,10 +188,10 @@ export const Home: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 flex items-center gap-2">
                 <Star size={16} />
-                <span>Coaches ({filteredCoaches.length})</span>
+                <span>Huấn luyện viên ({filteredCoaches.length})</span>
               </h3>
               {filteredCoaches.length === 0 ? (
-                <p className="text-sm text-neutral-500 italic pl-6">No matching coaches found.</p>
+                <p className="text-sm text-neutral-500 italic pl-6">Không tìm thấy huấn luyện viên phù hợp.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {filteredCoaches.map(({ coach, user }) => (
@@ -207,8 +207,8 @@ export const Home: React.FC = () => {
                       </div>
                       <p className="text-xs text-neutral-400 line-clamp-2 mb-4">{coach.teachingMethodology}</p>
                       <div className="border-t border-darkborder pt-3 flex justify-between items-center mt-auto">
-                        <span className="text-sm font-bold text-gold">{coach.hourlyRate.toLocaleString()} VND/hr</span>
-                        <Button size="sm" onClick={() => navigate(`/coaches/${coach.uid}`)}>Profile</Button>
+                        <span className="text-sm font-bold text-gold">{coach.hourlyRate.toLocaleString()} VND/giờ</span>
+                        <Button size="sm" onClick={() => navigate(`/coaches/${coach.uid}`)}>Hồ sơ</Button>
                       </div>
                     </Card>
                   ))}
@@ -220,10 +220,10 @@ export const Home: React.FC = () => {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 flex items-center gap-2">
                 <Users size={16} />
-                <span>Chess Clubs ({filteredClubs.length})</span>
+                <span>Câu lạc bộ ({filteredClubs.length})</span>
               </h3>
               {filteredClubs.length === 0 ? (
-                <p className="text-sm text-neutral-500 italic pl-6">No matching clubs found.</p>
+                <p className="text-sm text-neutral-500 italic pl-6">Không tìm thấy câu lạc bộ phù hợp.</p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {filteredClubs.map(club => (
@@ -233,8 +233,8 @@ export const Home: React.FC = () => {
                         <p className="text-xs text-neutral-400 line-clamp-2 mb-4">{club.description}</p>
                       </div>
                       <div className="border-t border-darkborder pt-3 flex justify-between items-center mt-auto">
-                        <span className="text-xs text-neutral-500">{club.membersCount} members</span>
-                        <Button size="sm" onClick={() => navigate(`/clubs/${club.id}`)}>Join Club</Button>
+                        <span className="text-xs text-neutral-500">{club.membersCount} thành viên</span>
+                        <Button size="sm" onClick={() => navigate(`/clubs/${club.id}`)}>Tham gia CLB</Button>
                       </div>
                     </Card>
                   ))}
@@ -252,10 +252,10 @@ export const Home: React.FC = () => {
           <div className="border-y border-darkborder bg-darkcard/30">
             <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { label: 'Active Players', value: stats.players },
-                { label: 'Verified Coaches', value: stats.coaches },
-                { label: 'University Clubs', value: stats.clubs },
-                { label: 'Tournaments Hosted', value: stats.tournaments }
+                { label: 'Kỳ thủ hoạt động', value: stats.players },
+                { label: 'Huấn luyện viên xác minh', value: stats.coaches },
+                { label: 'Câu lạc bộ cờ vua', value: stats.clubs },
+                { label: 'Giải đấu đã tổ chức', value: stats.tournaments }
               ].map(stat => (
                 <div key={stat.label} className="text-center md:text-left">
                   <span className="text-3xl font-extrabold font-display text-white block">{stat.value}</span>
@@ -265,15 +265,15 @@ export const Home: React.FC = () => {
             </div>
           </div>
 
-          {/* Featured Tournaments */}
+          {/* Giải đấu nổi bật */}
           <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Featured Tournaments</h2>
-                <p className="text-xs text-neutral-500 mt-1">Challenge yourself in upcoming Swiss tournaments</p>
+                <p className="text-xs text-neutral-500 mt-1">Thử thách bản thân trong các giải đấu hệ Thụy Sĩ sắp tới</p>
               </div>
               <Link to="/tournaments" className="text-xs font-bold text-gold hover:underline flex items-center gap-1">
-                <span>View All Tournaments</span>
+                <span>Xem tất cả giải đấu</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
@@ -294,16 +294,16 @@ export const Home: React.FC = () => {
                     </div>
                     <div className="space-y-2 border-t border-darkborder/50 pt-4 text-xs text-neutral-400">
                       <div className="flex justify-between">
-                        <span>Fee: {tour.entryFee === 0 ? 'Free' : `${tour.entryFee.toLocaleString()} VND`}</span>
-                        <span className="font-semibold text-white">Prize: {tour.prizePool}</span>
+                        <span>Lệ phí: {tour.entryFee === 0 ? 'Miễn phí' : `${tour.entryFee.toLocaleString()} VND`}</span>
+                        <span className="font-semibold text-white">Giải thưởng: {tour.prizePool}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Date: {new Date(tour.startDate).toLocaleDateString()}</span>
-                        <span>City: {tour.location.city}</span>
+                        <span>Bắt đầu: {new Date(tour.startDate).toLocaleDateString('vi-VN')}</span>
+                        <span>Khu vực: {tour.location.city}</span>
                       </div>
                     </div>
                     <Button variant="secondary" className="w-full text-xs font-semibold mt-6" onClick={() => navigate(`/tournaments/${tour.id}`)}>
-                      View Details
+                      Xem chi tiết
                     </Button>
                   </div>
                 </Card>
@@ -317,10 +317,10 @@ export const Home: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Find Chess Coaches</h2>
-                  <p className="text-xs text-neutral-500 mt-1">Study privately with verified chess masters</p>
+                  <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Tìm kiếm Huấn luyện viên</h2>
+                  <p className="text-xs text-neutral-500 mt-1">Học kèm riêng với các kiện tướng cờ vua chuyên nghiệp</p>
                 </div>
-                <Link to="/coaches" className="text-xs font-bold text-gold hover:underline">View All</Link>
+                <Link to="/coaches" className="text-xs font-bold text-gold hover:underline">Xem tất cả</Link>
               </div>
 
               <div className="space-y-4">
@@ -335,7 +335,7 @@ export const Home: React.FC = () => {
                         {user.title && <Badge variant="gold">{user.title}</Badge>}
                       </div>
                       <p className="text-xs text-neutral-400 mt-1 line-clamp-1">{coach.teachingMethodology}</p>
-                      <span className="text-xs text-neutral-500 mt-2 block">⭐ {coach.rating} ({coach.reviewsCount} reviews) | {coach.hourlyRate.toLocaleString()} VND/hr</span>
+                      <span className="text-xs text-neutral-500 mt-2 block">⭐ {coach.rating} ({coach.reviewsCount} đánh giá) | {coach.hourlyRate.toLocaleString()} VND/giờ</span>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => navigate(`/coaches/${coach.uid}`)}>
                       Profile
@@ -345,14 +345,14 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: Popular Chess Clubs */}
+            {/* Right: Câu lạc bộ phổ biến */}
             <div>
               <div className="flex items-center justify-between mb-8">
                 <div>
                   <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Popular Chess Clubs</h2>
-                  <p className="text-xs text-neutral-500 mt-1">Join local university or private communities</p>
+                  <p className="text-xs text-neutral-500 mt-1">Gia nhập các cộng đồng cờ vua sinh viên và tư nhân</p>
                 </div>
-                <Link to="/clubs" className="text-xs font-bold text-gold hover:underline">View All</Link>
+                <Link to="/clubs" className="text-xs font-bold text-gold hover:underline">Xem tất cả</Link>
               </div>
 
               <div className="space-y-4">
@@ -364,10 +364,10 @@ export const Home: React.FC = () => {
                     <div className="flex-grow">
                       <h4 className="font-bold text-white text-sm font-display line-clamp-1">{club.name}</h4>
                       <p className="text-xs text-neutral-400 mt-1 line-clamp-1">{club.description}</p>
-                      <span className="text-xs text-neutral-500 mt-2 block">👥 {club.membersCount} Members | Founded {club.foundedAt}</span>
+                      <span className="text-xs text-neutral-500 mt-2 block">👥 {club.membersCount} Thành viên | Thành lập {club.foundedAt}</span>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => navigate(`/clubs/${club.id}`)}>
-                      Join
+                      Tham gia
                     </Button>
                   </Card>
                 ))}
@@ -375,15 +375,15 @@ export const Home: React.FC = () => {
             </div>
           </div>
 
-          {/* Social Community Feed Preview */}
+          {/* Social Xem trước Bản tin Cộng đồng */}
           <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 border-t border-darkborder">
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Community Feed Preview</h2>
-                <p className="text-xs text-neutral-500 mt-1">See what players and coaches are sharing</p>
+                <p className="text-xs text-neutral-500 mt-1">Xem các kì thủ và huấn luyện viên đang chia sẻ những gì</p>
               </div>
               <Link to="/community" className="text-xs font-bold text-gold hover:underline flex items-center gap-1">
-                <span>Go to Feed</span>
+                <span>Đến Bản tin</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
@@ -404,8 +404,8 @@ export const Home: React.FC = () => {
                     <p className="text-sm text-neutral-200 line-clamp-4 mb-4">{post.content}</p>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-neutral-500 border-t border-darkborder/50 pt-4 mt-auto">
-                    <span>❤️ {post.likesCount} Likes</span>
-                    <span>💬 {post.commentsCount} Comments</span>
+                    <span>❤️ {post.likesCount} Lượt thích</span>
+                    <span>💬 {post.commentsCount} Bình luận</span>
                   </div>
                 </Card>
               ))}
@@ -414,13 +414,13 @@ export const Home: React.FC = () => {
 
           {/* Final Call to Action */}
           <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 border-t border-darkborder text-center space-y-6">
-            <h2 className="text-3xl font-bold font-display text-white tracking-wide">Join the ChessHub Community</h2>
+            <h2 className="text-3xl font-bold font-display text-white tracking-wide">Gia nhập Cộng đồng ChessHub</h2>
             <p className="text-neutral-400 max-w-md mx-auto text-sm">
-              Create an account today to publish games, ask questions to grandmasters, register for tournaments, and build your rating points.
+              Tạo tài khoản hôm nay để chia sẻ ván cờ, đặt câu hỏi cho các đại kiện tướng, đăng ký giải đấu và nâng cao hệ số Elo của bạn.
             </p>
             <div className="pt-2">
               <Button variant="gold" size="lg" onClick={() => navigate('/auth')}>
-                Get Started Now
+                Bắt đầu ngay
               </Button>
             </div>
           </div>

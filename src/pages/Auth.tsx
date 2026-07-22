@@ -71,15 +71,15 @@ export const Auth: React.FC = () => {
     try {
       if (isRegister) {
         await authService.registerWithPassword(email, password, username, fullName);
-        addToast('Registration successful! Welcome to ChessHub.', 'success');
+        addToast('Đăng ký thành công! Chào mừng tới ChessHub.', 'success');
       } else {
         await authService.login(email, password);
-        addToast('Welcome back to ChessHub!', 'success');
+        addToast('Chào mừng bạn quay trở lại với ChessHub!', 'success');
       }
       navigate('/');
     } catch (err: any) {
       console.error(err);
-      addToast(err.message || 'Authentication failed. Please check your credentials.', 'error');
+      addToast(err.message || 'Xác thực thất bại. Vui lòng kiểm tra lại thông tin.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -89,11 +89,11 @@ export const Auth: React.FC = () => {
     setIsLoading(true);
     try {
       await authService.loginWithGoogle();
-      addToast('Google Sign-In successful!', 'success');
+      addToast('Đăng nhập Google thành công!', 'success');
       navigate('/');
     } catch (err: any) {
       console.error(err);
-      addToast(err.message || 'Google Sign-In failed.', 'error');
+      addToast(err.message || 'Đăng nhập Google thất bại.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -106,10 +106,10 @@ export const Auth: React.FC = () => {
         <div className="text-center mb-8">
           <span className="text-gold text-4xl font-bold font-display block mb-2">♟</span>
           <h2 className="text-2xl font-bold font-display text-ivory tracking-wide">
-            {isRegister ? 'Create Your Account' : 'Welcome Back'}
+            {isRegister ? 'Tạo tài khoản mới' : 'Chào mừng trở lại'}
           </h2>
           <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider">
-            {isRegister ? 'Join the Vietnamese chess community' : 'Sign in to access your dashboard'}
+            {isRegister ? 'Gia nhập cộng đồng cờ vua Việt Nam' : 'Đăng nhập để vào bảng điều khiển'}
           </p>
         </div>
 
@@ -118,36 +118,36 @@ export const Auth: React.FC = () => {
           {isRegister && (
             <>
               <Input
-                label="Full Name"
+                label="Họ và Tên"
                 type="text"
-                placeholder="e.g. Nguyễn Văn A"
+                placeholder="Ví dụ: Nguyễn Văn A"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 error={errors.fullName}
               />
               <Input
-                label="Username"
+                label="Tên đăng nhập"
                 type="text"
-                placeholder="e.g. chess_player_99"
+                placeholder="Ví dụ: chess_player_99"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 error={errors.username}
-                helperText="Only letters, numbers, and underscores."
+                helperText="Chỉ bao gồm chữ cái, chữ số và dấu gạch dưới."
               />
             </>
           )}
 
           <Input
-            label="Email Address"
+            label="Địa chỉ Email"
             type="email"
-            placeholder="e.g. player@chesshub.vn"
+            placeholder="Ví dụ: player@chesshub.vn"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             error={errors.email}
           />
 
           <Input
-            label="Password"
+            label="Mật khẩu"
             type="password"
             placeholder="••••••••"
             value={password}
@@ -157,7 +157,7 @@ export const Auth: React.FC = () => {
 
           {isRegister && (
             <Input
-              label="Confirm Password"
+              label="Xác nhận mật khẩu"
               type="password"
               placeholder="••••••••"
               value={confirmPassword}
@@ -172,7 +172,7 @@ export const Auth: React.FC = () => {
             className="w-full mt-6"
             isLoading={isLoading}
           >
-            {isRegister ? 'Register Account' : 'Sign In'}
+            {isRegister ? 'Đăng ký tài khoản' : 'Đăng nhập'}
           </Button>
         </form>
 
@@ -182,7 +182,7 @@ export const Auth: React.FC = () => {
             <div className="w-full border-t border-darkborder"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-darkcard px-3 text-neutral-500 font-bold tracking-wider">Or continue with</span>
+            <span className="bg-darkcard px-3 text-neutral-500 font-bold tracking-wider">Hoặc tiếp tục bằng</span>
           </div>
         </div>
 
@@ -212,13 +212,13 @@ export const Auth: React.FC = () => {
               d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.4C13.46.97 11.42 0 9 0 5.48 0 2.43 2.07.95 5.06l3 2.3c.72-2.14 2.7-3.78 5.05-3.78z"
             />
           </svg>
-          <span>Google Accounts</span>
+          <span>Tài khoản Google</span>
         </Button>
 
         {/* Form Toggle */}
         <div className="mt-8 text-center text-xs">
           <span className="text-neutral-500 font-medium">
-            {isRegister ? 'Already have an account?' : "Don't have an account yet?"}
+            {isRegister ? 'Đã có tài khoản?' : 'Chưa đăng ký tài khoản?'}
           </span>{' '}
           <button
             onClick={() => {
@@ -227,7 +227,7 @@ export const Auth: React.FC = () => {
             }}
             className="text-gold font-bold hover:underline cursor-pointer ml-1"
           >
-            {isRegister ? 'Sign In here' : 'Register here'}
+            {isRegister ? 'Đăng nhập tại đây' : 'Đăng ký tại đây'}
           </button>
         </div>
       </Card>
