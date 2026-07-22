@@ -164,8 +164,8 @@ export const Profile: React.FC = () => {
       await userService.updateUser(currentUser.uid, {
         fullName: editFullName,
         bio: editBio,
-        fideId: editFideId || undefined,
-        location: { ...currentUser.location, city: editCity },
+        fideId: editFideId || '',
+        location: { city: editCity, country: currentUser.location?.country || 'VN' },
         ratings: {
           ...currentUser.ratings,
           rapid: Number(editRapid),
