@@ -375,33 +375,66 @@ export const Clubs: React.FC = () => {
             )}
 
             {activeSubTab === 'members' && (
-              <Card>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Danh sách Thành viên ({approvedMembers.length})</h3>
-                {approvedMembers.length === 0 ? (
-                  <p className="text-xs text-neutral-500 italic">Chưa có thành viên chính thức nào trong câu lạc bộ.</p>
-                ) : (
+              <div className="space-y-6">
+                {/* Board of Management */}
+                <Card>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gold mb-4 font-display flex items-center gap-2">
+                    <Crown size={16} className="text-gold" />
+                    <span>Ban Quản Trị Câu Lạc Bộ</span>
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {approvedMembers.map(({ member, user }) => (
-                      <div key={user.uid} className="flex items-center justify-between p-3 bg-charcoal/50 border border-darkborder/50 rounded-xl hover:border-neutral-700 transition-colors">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full overflow-hidden bg-darkborder shrink-0">
-                            <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                    {approvedMembers
+                      .filter(({ member, user }) => member.role === 'president' || member.role === 'vice_president' || member.role === 'admin' || detailClub.creatorId === user.uid)
+                      .map(({ member, user }) => (
+                        <div key={user.uid} className="flex items-center justify-between p-3.5 bg-gold/5 border border-gold/30 rounded-xl">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-full overflow-hidden bg-darkborder shrink-0 border border-gold/50">
+                              <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                            </div>
+                            <div>
+                              <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline block">{user.fullName}</Link>
+                              <span className="text-[10px] text-neutral-400 block">@{user.username}</span>
+                            </div>
                           </div>
                           <div>
-                            <div className="flex items-center gap-2">
-                              <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline block">{user.fullName}</Link>
-                            </div>
-                            <span className="text-[10px] text-neutral-500 block">@{user.username}</span>
+                            {renderMemberRoleBadge(detailClub.creatorId === user.uid ? 'president' : member.role)}
                           </div>
                         </div>
-                        <div>
-                          {renderMemberRoleBadge(member.role)}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
-                )}
-              </Card>
+                </Card>
+
+                {/* Regular Members */}
+                <Card>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">
+                    Thành viên chính thức ({approvedMembers.filter(({ member, user }) => member.role === 'member' && detailClub.creatorId !== user.uid).length})
+                  </h3>
+                  {approvedMembers.filter(({ member, user }) => member.role === 'member' && detailClub.creatorId !== user.uid).length === 0 ? (
+                    <p className="text-xs text-neutral-500 italic">Chưa có thành viên thông thường nào gia nhập.</p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {approvedMembers
+                        .filter(({ member, user }) => member.role === 'member' && detailClub.creatorId !== user.uid)
+                        .map(({ member, user }) => (
+                          <div key={user.uid} className="flex items-center justify-between p-3 bg-charcoal/50 border border-darkborder/50 rounded-xl hover:border-neutral-700 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <div className="h-10 w-10 rounded-full overflow-hidden bg-darkborder shrink-0">
+                                <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                              </div>
+                              <div>
+                                <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline block">{user.fullName}</Link>
+                                <span className="text-[10px] text-neutral-500 block">@{user.username}</span>
+                              </div>
+                            </div>
+                            <div>
+                              {renderMemberRoleBadge(member.role)}
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </Card>
+              </div>
             )}
 
             {activeSubTab === 'admin' && isClubAdmin && (
