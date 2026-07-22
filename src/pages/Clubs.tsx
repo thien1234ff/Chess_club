@@ -112,7 +112,7 @@ export const Clubs: React.FC = () => {
         socialLinks: { facebook, website }
       });
 
-      addToast('Đơn tạo câu lạc bộ đã được gửi đến Admin để phê duyệt!', 'success');
+      addToast('Đã gửi đơn đăng ký thành lập CLB! Vui lòng chờ Admin phê duyệt trước khi công khai.', 'info');
       setSearchParams({ tab: 'discover' });
     } catch (err) {
       addToast('Tạo câu lạc bộ thất bại.', 'error');
