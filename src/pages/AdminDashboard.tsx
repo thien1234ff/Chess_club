@@ -13,6 +13,8 @@ import {
   ShieldAlert, Users, Award, Trophy, 
   Flag, CheckCircle, Trash, RefreshCw, Slash
 } from 'lucide-react';
+import { db, isFirebaseMode } from '../services/firebase';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 export const AdminDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -31,7 +33,13 @@ export const AdminDashboard: React.FC = () => {
       const listUsers = await userService.getUsers();
       setUsers(listUsers);
 
-      const listReports = MockDB.getCollection<Report>('REPORTS');
+      let listReports: Report[] = [];
+      if (isFirebaseMode && db) {
+        const snapshot = await getDocs(collection(db, 'reports'));
+        listReports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Report));
+      } else {
+        listReports = MockDB.getCollection<Report>('REPORTS');
+      }
       setReports(listReports);
     } catch (err) {
       console.error(err);
@@ -55,15 +63,21 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDismissReport = (reportId: string) => {
+  const handleDismissReport = async (reportId: string) => {
     try {
-      const allReports = MockDB.getCollection<Report>('REPORTS');
-      const idx = allReports.findIndex(r => r.id === reportId);
-      if (idx !== -1) {
-        allReports[idx].status = 'resolved';
-        MockDB.saveCollection('REPORTS', allReports);
+      if (isFirebaseMode && db) {
+        await updateDoc(doc(db, 'reports', reportId), { status: 'resolved' });
         addToast('Report dismissed.', 'info');
         loadAdminData();
+      } else {
+        const allReports = MockDB.getCollection<Report>('REPORTS');
+        const idx = allReports.findIndex(r => r.id === reportId);
+        if (idx !== -1) {
+          allReports[idx].status = 'resolved';
+          MockDB.saveCollection('REPORTS', allReports);
+          addToast('Report dismissed.', 'info');
+          loadAdminData();
+        }
       }
     } catch (err) {
       console.error(err);
@@ -75,11 +89,15 @@ export const AdminDashboard: React.FC = () => {
       await postService.deletePost(postId);
       
       // Update report status
-      const allReports = MockDB.getCollection<Report>('REPORTS');
-      const idx = allReports.findIndex(r => r.id === reportId);
-      if (idx !== -1) {
-        allReports[idx].status = 'resolved';
-        MockDB.saveCollection('REPORTS', allReports);
+      if (isFirebaseMode && db) {
+        await updateDoc(doc(db, 'reports', reportId), { status: 'resolved' });
+      } else {
+        const allReports = MockDB.getCollection<Report>('REPORTS');
+        const idx = allReports.findIndex(r => r.id === reportId);
+        if (idx !== -1) {
+          allReports[idx].status = 'resolved';
+          MockDB.saveCollection('REPORTS', allReports);
+        }
       }
       
       addToast('Reported post deleted permanently.', 'success');

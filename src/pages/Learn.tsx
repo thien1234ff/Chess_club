@@ -8,6 +8,8 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import ChessboardWrapper from '../components/chess/ChessboardWrapper';
+import { db, isFirebaseMode } from '../services/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import { 
   BookOpen, Award, CheckCircle, Zap, Star, 
   RotateCcw, Compass, ArrowRight, Play, Eye
@@ -50,10 +52,16 @@ export const Learn: React.FC = () => {
   const puzzleId = searchParams.get('puzzleId') || null;
 
   useEffect(() => {
-    const fetchPuzzles = () => {
+    const fetchPuzzles = async () => {
       setIsLoading(true);
       try {
-        const list = MockDB.getCollection<Puzzle>('PUZZLES');
+        let list: Puzzle[] = [];
+        if (isFirebaseMode && db) {
+          const snapshot = await getDocs(collection(db, 'puzzles'));
+          list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Puzzle));
+        } else {
+          list = MockDB.getCollection<Puzzle>('PUZZLES');
+        }
         setPuzzles(list);
 
         if (puzzleId) {
