@@ -679,3 +679,12 @@ export const seedNotifications: Notification[] = [
     createdAt: hoursAgo(5)
   }
 ];
+
+export const seedFollows = [
+  { id: 'player_1_coach_le_quang_liem', followerId: 'player_1', followingId: 'coach_le_quang_liem', createdAt: daysAgo(30) },
+  { id: 'player_2_coach_le_quang_liem', followerId: 'player_2', followingId: 'coach_le_quang_liem', createdAt: daysAgo(20) },
+  { id: 'player_3_coach_le_quang_liem', followerId: 'player_3', followingId: 'coach_le_quang_liem', createdAt: daysAgo(15) },
+  { id: 'player_1_coach_truong_son', followerId: 'player_1', followingId: 'coach_truong_son', createdAt: daysAgo(25) },
+  { id: 'player_1_admin_user', followerId: 'player_1', followingId: 'admin_user', createdAt: daysAgo(10) }
+];
+

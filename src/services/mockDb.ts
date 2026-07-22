@@ -72,7 +72,7 @@ export class MockDB {
       ]);
       setStorageItem(KEYS.TOURNAMENT_MATCHES, []);
       setStorageItem(KEYS.LIKES, []);
-      setStorageItem(KEYS.FOLLOWS, []);
+      setStorageItem(KEYS.FOLLOWS, seeder.seedFollows);
       setStorageItem(KEYS.CONVERSATIONS, []);
       setStorageItem(KEYS.MESSAGES, []);
       setStorageItem(KEYS.REPORTS, []);

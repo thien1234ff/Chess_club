@@ -1,6 +1,6 @@
 import { 
   doc, updateDoc, getDoc, collection, 
-  query, where, getDocs, limit 
+  query, where, getDocs, limit, setDoc, deleteDoc
 } from 'firebase/firestore';
 import { db, isFirebaseMode } from './firebase';
 import { MockDB } from './mockDb';
@@ -227,11 +227,30 @@ class UserService {
 
   // Follow Actions
   async followUser(followerId: string, followingId: string): Promise<void> {
+    const followId = `${followerId}_${followingId}`;
     if (isFirebaseMode && db) {
-      // In firebase we'd add document to follows collection
+      await setDoc(doc(db, 'follows', followId), {
+        id: followId,
+        followerId,
+        followingId,
+        createdAt: new Date().toISOString()
+      });
+
+      const follower = await this.getUser(followerId);
+      if (follower) {
+        await notificationService.createNotification({
+          recipientId: followingId,
+          senderId: followerId,
+          senderName: follower.fullName,
+          senderAvatar: follower.avatarUrl,
+          type: 'follow',
+          targetId: followerId,
+          title: 'Người theo dõi mới',
+          message: `${follower.fullName} đã bắt đầu theo dõi bạn.`
+        });
+      }
     } else {
       const follows = MockDB.getCollection<any>('FOLLOWS');
-      const followId = `${followerId}_${followingId}`;
       if (!follows.some(f => f.id === followId)) {
         follows.push({
           id: followId,
@@ -250,8 +269,8 @@ class UserService {
             senderAvatar: follower.avatarUrl,
             type: 'follow',
             targetId: followerId,
-            title: 'New Follower',
-            message: `${follower.fullName} is now following you.`
+            title: 'Người theo dõi mới',
+            message: `${follower.fullName} đã bắt đầu theo dõi bạn.`
           });
         }
       }
@@ -259,20 +278,21 @@ class UserService {
   }
 
   async unfollowUser(followerId: string, followingId: string): Promise<void> {
+    const followId = `${followerId}_${followingId}`;
     if (isFirebaseMode && db) {
-      // In firebase we'd delete follow document
+      await deleteDoc(doc(db, 'follows', followId));
     } else {
       const follows = MockDB.getCollection<any>('FOLLOWS');
-      const followId = `${followerId}_${followingId}`;
       const filtered = follows.filter(f => f.id !== followId);
       MockDB.saveCollection('FOLLOWS', filtered);
     }
   }
 
   async isFollowing(followerId: string, followingId: string): Promise<boolean> {
+    const followId = `${followerId}_${followingId}`;
     if (isFirebaseMode && db) {
-      // query firestore follows where followerId and followingId
-      return false;
+      const snap = await getDoc(doc(db, 'follows', followId));
+      return snap.exists();
     } else {
       const follows = MockDB.getCollection<any>('FOLLOWS');
       return follows.some(f => f.followerId === followerId && f.followingId === followingId);
@@ -281,7 +301,9 @@ class UserService {
 
   async getFollowersCount(uid: string): Promise<number> {
     if (isFirebaseMode && db) {
-      return 0;
+      const q = query(collection(db, 'follows'), where('followingId', '==', uid));
+      const snap = await getDocs(q);
+      return snap.size;
     } else {
       const follows = MockDB.getCollection<any>('FOLLOWS');
       return follows.filter(f => f.followingId === uid).length;
@@ -290,7 +312,9 @@ class UserService {
 
   async getFollowingCount(uid: string): Promise<number> {
     if (isFirebaseMode && db) {
-      return 0;
+      const q = query(collection(db, 'follows'), where('followerId', '==', uid));
+      const snap = await getDocs(q);
+      return snap.size;
     } else {
       const follows = MockDB.getCollection<any>('FOLLOWS');
       return follows.filter(f => f.followerId === uid).length;

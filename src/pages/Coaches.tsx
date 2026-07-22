@@ -12,9 +12,11 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import Spinner from '../components/ui/Spinner';
+import { userService } from '../services/userService';
 import { 
   Star, Shield, DollarSign, Calendar, Clock, 
-  MapPin, Globe, Compass, BookOpen, AlertTriangle 
+  MapPin, Globe, Compass, BookOpen, AlertTriangle,
+  Check, Plus, Users 
 } from 'lucide-react';
 
 export const Coaches: React.FC = () => {
@@ -35,6 +37,8 @@ export const Coaches: React.FC = () => {
 
   // Individual Coach Detail states (when ID is active)
   const [detailCoach, setDetailCoach] = useState<{ coach: Coach; user: User } | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followersCount, setFollowersCount] = useState(0);
   
   // Booking Form states
   const [bookingDate, setBookingDate] = useState(() => {
@@ -59,6 +63,13 @@ export const Coaches: React.FC = () => {
           // Fetch booked slots for the chosen date
           const slots = await bookingService.getCoachBookedSlots(detail.coach.uid, bookingDate);
           setBookedSlots(slots);
+
+          if (currentUser) {
+            const follows = await userService.isFollowing(currentUser.uid, detail.coach.uid);
+            setIsFollowing(follows);
+          }
+          const fCount = await userService.getFollowersCount(detail.coach.uid);
+          setFollowersCount(fCount);
         }
       } else {
         // Load directory
@@ -80,6 +91,31 @@ export const Coaches: React.FC = () => {
   const handleBookingDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBookingDate(e.target.value);
     setSelectedSlot(null);
+  };
+
+  const handleFollowToggle = async () => {
+    if (!currentUser) {
+      addToast('Vui lòng đăng nhập để theo dõi huấn luyện viên.', 'warning');
+      navigate('/auth');
+      return;
+    }
+    if (!detailCoach) return;
+
+    try {
+      if (isFollowing) {
+        await userService.unfollowUser(currentUser.uid, detailCoach.coach.uid);
+        setIsFollowing(false);
+        setFollowersCount(prev => Math.max(0, prev - 1));
+        addToast(`Đã bỏ theo dõi ${detailCoach.user.fullName}`, 'info');
+      } else {
+        await userService.followUser(currentUser.uid, detailCoach.coach.uid);
+        setIsFollowing(true);
+        setFollowersCount(prev => prev + 1);
+        addToast(`Đã theo dõi ${detailCoach.user.fullName}`, 'success');
+      }
+    } catch (err) {
+      addToast('Không thể thực hiện thao tác theo dõi.', 'error');
+    }
   };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -164,23 +200,38 @@ export const Coaches: React.FC = () => {
           {/* Left Column: Coach Bio and specialties */}
           <div className="lg:col-span-2 space-y-6">
             <Card className="p-6">
-              <div className="flex gap-4 items-start border-b border-darkborder/50 pb-6 mb-6">
-                <div className="h-20 w-20 rounded-full overflow-hidden bg-darkborder border border-neutral-700 shrink-0">
-                  <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h2 className="text-xl font-bold font-display text-white">{user.fullName}</h2>
-                    {user.title && <Badge variant="gold">{user.title}</Badge>}
-                    {coach.verified && <Shield size={16} className="text-gold" fill="currentColor" />}
+                <div className="flex justify-between items-start border-b border-darkborder/50 pb-6 mb-6 gap-4">
+                  <div className="flex gap-4 items-start">
+                    <div className="h-20 w-20 rounded-full overflow-hidden bg-darkborder border border-neutral-700 shrink-0">
+                      <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h2 className="text-xl font-bold font-display text-white">{user.fullName}</h2>
+                        {user.title && <Badge variant="gold">{user.title}</Badge>}
+                        {coach.verified && <Shield size={16} className="text-gold" fill="currentColor" />}
+                      </div>
+                      <span className="text-xs text-neutral-500 block mt-1">@{user.username}</span>
+                      <div className="flex items-center gap-4 mt-3 text-xs text-neutral-300">
+                        <span className="flex items-center gap-1"><MapPin size={12} className="text-gold" /> {user.location.city}</span>
+                        <span className="flex items-center gap-1"><Users size={12} className="text-neutral-400" /> {followersCount} người theo dõi</span>
+                        <span>⭐ {coach.rating} ({coach.reviewsCount} đánh giá)</span>
+                      </div>
+                    </div>
                   </div>
-                  <span className="text-xs text-neutral-500 block mt-1">@{user.username}</span>
-                  <div className="flex items-center gap-4 mt-3 text-xs text-neutral-300">
-                    <span className="flex items-center gap-1"><MapPin size={12} className="text-gold" /> {user.location.city}</span>
-                    <span>⭐ {coach.rating} ({coach.reviewsCount} đánh giá)</span>
-                  </div>
+
+                  {currentUser?.uid !== user.uid && (
+                    <Button
+                      variant={isFollowing ? 'outline' : 'gold'}
+                      size="sm"
+                      className="flex items-center gap-1.5 shrink-0"
+                      onClick={handleFollowToggle}
+                    >
+                      {isFollowing ? <Check size={14} /> : <Plus size={14} />}
+                      <span>{isFollowing ? 'Đang theo dõi' : '+ Theo dõi'}</span>
+                    </Button>
+                  )}
                 </div>
-              </div>
 
               <div className="space-y-4">
                 <div>

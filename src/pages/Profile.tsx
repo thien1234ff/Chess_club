@@ -362,7 +362,7 @@ export const Profile: React.FC = () => {
                     onClick={handleFollowToggle}
                   >
                     {isFollowing ? <Check size={14} /> : <Plus size={14} />}
-                    <span>{isFollowing ? 'Following' : 'Follow'}</span>
+                    <span>{isFollowing ? 'Đang theo dõi' : '+ Theo dõi'}</span>
                   </Button>
                   
                   {userProfile.role === 'coach' && (
@@ -371,7 +371,7 @@ export const Profile: React.FC = () => {
                       className="w-full text-xs"
                       onClick={() => navigate(`/coaches/${userProfile.uid}`)}
                     >
-                      Book a Lesson
+                      Đặt lịch học cờ
                     </Button>
                   )}
                 </>
