@@ -4,6 +4,7 @@ import { Menu, X, Bell, MessageSquare, User as UserIcon, LogOut, ShieldAlert, Aw
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationService } from '../../services/notificationService';
 import { messagingService } from '../../services/messagingService';
+import { clubService } from '../../services/clubService';
 import { Button } from '../ui/Button';
 
 export const Navbar: React.FC = () => {
@@ -14,6 +15,36 @@ export const Navbar: React.FC = () => {
   const [unreadNotifs, setUnreadNotifs] = useState(0);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [canAccessDashboard, setCanAccessDashboard] = useState(false);
+
+  // Check if current user has management privileges for Dashboard
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (!currentUser) {
+        setCanAccessDashboard(false);
+        return;
+      }
+
+      if (['admin', 'moderator', 'club_admin', 'tournament_organizer'].includes(currentUser.role)) {
+        setCanAccessDashboard(true);
+        return;
+      }
+
+      try {
+        const allClubs = await clubService.getClubs(undefined, true);
+        const isClubManager = allClubs.some(c => 
+          c.creatorId === currentUser.uid || 
+          c.creatorId === currentUser.username || 
+          c.creatorId === currentUser.email
+        );
+        setCanAccessDashboard(isClubManager);
+      } catch (err) {
+        setCanAccessDashboard(false);
+      }
+    };
+
+    checkAccess();
+  }, [currentUser]);
 
   // Fetch unread notification and message counts
   useEffect(() => {
@@ -121,15 +152,17 @@ export const Navbar: React.FC = () => {
                   )}
                 </Link>
 
-                {/* Dashboard Button */}
-                <Link 
-                  to="/admin" 
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/40 text-gold hover:bg-gold/20 font-bold text-xs transition-all shrink-0" 
-                  title="Bảng điều khiển Quản trị hệ thống & CLB"
-                >
-                  <LayoutDashboard size={14} />
-                  <span>Bảng Quản Trị</span>
-                </Link>
+                {/* Dashboard Button (Only for Admins, Moderators, Organizers, and Club Leaders) */}
+                {canAccessDashboard && (
+                  <Link 
+                    to="/admin" 
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/40 text-gold hover:bg-gold/20 font-bold text-xs transition-all shrink-0" 
+                    title="Bảng điều khiển Quản trị hệ thống &amp; CLB"
+                  >
+                    <LayoutDashboard size={14} />
+                    <span>Bảng Quản Trị</span>
+                  </Link>
+                )}
 
                 {/* Profile Link */}
                 <Link 

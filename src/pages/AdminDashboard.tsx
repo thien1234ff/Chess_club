@@ -27,7 +27,7 @@ export const AdminDashboard: React.FC = () => {
   const isSystemAdmin = currentUser?.role === 'admin' || currentUser?.role === 'moderator';
 
   // Main Dashboard Mode: 'system' | 'club'
-  const [mainMode, setMainMode] = useState<'system' | 'club'>('system');
+  const [mainMode, setMainMode] = useState<'system' | 'club'>(isSystemAdmin ? 'system' : 'club');
 
   // System Admin Data
   const [users, setUsers] = useState<User[]>([]);
@@ -349,17 +349,19 @@ export const AdminDashboard: React.FC = () => {
 
       {/* TOP MULTI-MODE SWITCHER (System Admin vs Club Management) */}
       <div className="flex flex-wrap gap-3 mb-8 bg-darkcard/60 p-2 rounded-2xl border border-darkborder">
-        <button
-          onClick={() => setMainMode('system')}
-          className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all ${
-            mainMode === 'system'
-              ? 'bg-gold text-charcoal shadow-lg shadow-gold/20'
-              : 'text-neutral-400 hover:text-white hover:bg-darkborder/50'
-          }`}
-        >
-          <ShieldAlert size={16} />
-          <span>🛡️ Quản trị Hệ thống</span>
-        </button>
+        {isSystemAdmin && (
+          <button
+            onClick={() => setMainMode('system')}
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer transition-all ${
+              mainMode === 'system'
+                ? 'bg-gold text-charcoal shadow-lg shadow-gold/20'
+                : 'text-neutral-400 hover:text-white hover:bg-darkborder/50'
+            }`}
+          >
+            <ShieldAlert size={16} />
+            <span>🛡️ Quản trị Hệ thống</span>
+          </button>
+        )}
 
         <button
           onClick={() => setMainMode('club')}
@@ -375,7 +377,7 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* MODE 1: SYSTEM ADMIN DASHBOARD */}
-      {mainMode === 'system' && (
+      {mainMode === 'system' && isSystemAdmin && (
         <div className="space-y-8">
           {/* Global Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
