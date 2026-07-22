@@ -116,7 +116,7 @@ class UserService {
 
     // If coach request, prepare coach profile in pending state
     if (requestedRole === 'coach') {
-      await this.createOrUpdateCoachProfile(uid, {
+      await this.saveCoachProfile(uid, {
         verified: false,
         experienceYears: details.coachingExperienceYears,
         hourlyRate: details.hourlyRate,
@@ -164,64 +164,67 @@ class UserService {
   // Admin approves role request
   async approveRoleRequest(uid: string): Promise<void> {
     const user = await this.getUser(uid);
-    if (!user) throw new Error('User not found.');
+    if (!user) throw new Error('Không tìm thấy người dùng.');
     
     // Check if there is a pending request
     const request = (user as any).roleRequest;
-    if (!request) throw new Error('No pending role request found.');
+    if (!request) throw new Error('Không tìm thấy đơn ứng tuyển nào.');
 
     const approvedRole = request.role;
 
+    // 1. Update user role
     await this.updateUser(uid, {
       role: approvedRole,
-      // Remove request block or set approved
       roleRequest: undefined as any
     });
 
+    // 2. If approved as coach, create/verify coach profile in COACHES collection
     if (approvedRole === 'coach') {
-      await this.verifyCoachProfile(uid);
+      await this.saveCoachProfile(uid, {
+        verified: true,
+        experienceYears: request.coachingExperienceYears || 2,
+        hourlyRate: request.hourlyRate || 200000,
+        teachingMethodology: request.bio || 'Phương pháp giảng dạy tương tác, bám sát trình độ học viên.',
+        specializations: request.specializations?.length ? request.specializations : ['Khai cuộc', 'Chiến thuật', 'Tàn cuộc'],
+        languages: ['Tiếng Việt'],
+        rating: 5.0,
+        reviewsCount: 1,
+        studentsCount: 0,
+        availability: [
+          { dayOfWeek: 1, slots: ['09:00', '14:00', '19:00'] },
+          { dayOfWeek: 3, slots: ['09:00', '14:00', '19:00'] },
+          { dayOfWeek: 5, slots: ['09:00', '14:00', '19:00'] }
+        ]
+      });
     }
 
-    // Notify user of approval
+    // 3. Notify user of approval
     await notificationService.createNotification({
       recipientId: uid,
-      senderId: 'admin_user',
-      senderName: 'ChessHub Admin',
+      senderId: 'admin',
+      senderName: 'Ban Quản Trị ChessHub',
       senderAvatar: '',
       type: 'system',
       targetId: uid,
-      title: 'Role Approved 🎉',
-      message: `Your request to become a ${approvedRole.replace('_', ' ')} has been approved!`
+      title: 'Đã Phê Duyệt Hồ Sơ HLV 🎉',
+      message: `Chúc mừng! Hồ sơ ứng tuyển Huấn luyện viên cờ vua của bạn đã được Admin phê duyệt.`
     });
   }
 
-  // Internal Coach setup
-  private async createOrUpdateCoachProfile(uid: string, coachData: Omit<Coach, 'uid'>): Promise<void> {
+  // Save or update Coach profile in database
+  async saveCoachProfile(uid: string, coachData: Omit<Coach, 'uid'>): Promise<void> {
+    const fullData: Coach = { uid, ...coachData };
     if (isFirebaseMode && db) {
-      // In live Firebase, set inside coaches collection
-      // await setDoc(doc(db, 'coaches', uid), { uid, ...coachData });
+      await setDoc(doc(db, 'coaches', uid), fullData);
     } else {
       const coaches = MockDB.getCollection<Coach>('COACHES');
       const idx = coaches.findIndex(c => c.uid === uid);
       if (idx !== -1) {
-        coaches[idx] = { uid, ...coachData, verified: coaches[idx].verified };
+        coaches[idx] = fullData;
       } else {
-        coaches.push({ uid, ...coachData });
+        coaches.push(fullData);
       }
       MockDB.saveCollection('COACHES', coaches);
-    }
-  }
-
-  private async verifyCoachProfile(uid: string): Promise<void> {
-    if (isFirebaseMode && db) {
-      // updateDoc(doc(db, 'coaches', uid), { verified: true });
-    } else {
-      const coaches = MockDB.getCollection<Coach>('COACHES');
-      const idx = coaches.findIndex(c => c.uid === uid);
-      if (idx !== -1) {
-        coaches[idx].verified = true;
-        MockDB.saveCollection('COACHES', coaches);
-      }
     }
   }
 
