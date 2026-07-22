@@ -35,11 +35,52 @@ const ProfileSetupGuard: React.FC<{ children: React.ReactNode }> = ({ children }
   return <>{children}</>;
 };
 
+// Dynamic browser tab title manager for Vietnamese localization
+const TitleManager: React.FC = () => {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const routeTitles: Record<string, string> = {
+      '/': 'Trang chủ',
+      '/auth': 'Đăng nhập & Đăng ký',
+      '/profile-setup': 'Thiết lập hồ sơ',
+      '/community': 'Cộng đồng',
+      '/coaches': 'Huấn luyện viên',
+      '/tournaments': 'Giải đấu Swiss',
+      '/clubs': 'Câu lạc bộ',
+      '/learn': 'Học tập & Giải đố',
+      '/rankings': 'Bảng xếp hạng Elo',
+      '/messages': 'Hộp thư Tin nhắn',
+      '/admin': 'Bảng quản trị Admin'
+    };
+
+    const path = location.pathname;
+    let title = 'Hệ sinh thái cờ vua';
+
+    if (routeTitles[path]) {
+      title = routeTitles[path];
+    } else if (path.startsWith('/profile/')) {
+      title = 'Hồ sơ kì thủ';
+    } else if (path.startsWith('/coaches/')) {
+      title = 'Chi tiết Huấn luyện viên';
+    } else if (path.startsWith('/tournaments/')) {
+      title = 'Chi tiết Giải đấu';
+    } else if (path.startsWith('/clubs/')) {
+      title = 'Chi tiết Câu lạc bộ';
+    }
+
+    document.title = `ChessHub - ${title}`;
+  }, [location]);
+
+  return null;
+};
+
 function App() {
   return (
     <ToastProvider>
       <AuthProvider>
         <BrowserRouter>
+          <TitleManager />
           <div className="flex flex-col min-h-screen bg-charcoal text-ivory font-sans">
             {/* Developer Banner for sandbox sandboxing indicator */}
             <SandboxBanner />
