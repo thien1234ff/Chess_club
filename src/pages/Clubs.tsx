@@ -75,8 +75,13 @@ export const Clubs: React.FC = () => {
         setMembers(roster);
       } else {
         // Feed View loading
-        const list = await clubService.getClubs();
-        setClubs(list);
+        const list = await clubService.getClubs(undefined, true);
+        const visibleClubs = list.filter(c => 
+          !c.status || 
+          c.status === 'approved' || 
+          (currentUser && (c.creatorId === currentUser.uid || c.creatorId === currentUser.username || c.creatorId === currentUser.email))
+        );
+        setClubs(visibleClubs);
       }
     } catch (err) {
       console.error(err);
@@ -494,7 +499,8 @@ export const Clubs: React.FC = () => {
             <Card key={club.id} hoverable bordered className="flex flex-col h-full">
               <div className="h-40 overflow-hidden bg-neutral-900 border-b border-darkborder relative">
                 <img src={club.coverUrl} alt="cover" className="h-full w-full object-cover opacity-70" />
-                <div className="absolute top-3 right-3">
+                <div className="absolute top-3 right-3 flex gap-1.5 flex-wrap justify-end">
+                  {club.status === 'pending' && <Badge variant="warning">Đang chờ Admin duyệt</Badge>}
                   <Badge variant="gold">{club.location.type}</Badge>
                 </div>
               </div>

@@ -72,7 +72,7 @@ export const AdminDashboard: React.FC = () => {
 
       // 2. Load Managed Clubs for Current User (Creator automatically recognized as President)
       if (currentUser) {
-        const allClubs = await clubService.getClubs();
+        const allClubs = allClubsWithPending;
         const managed: { club: Club; userRole: ClubMemberRole }[] = [];
 
         for (const c of allClubs) {
