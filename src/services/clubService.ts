@@ -1,0 +1,235 @@
+import { 
+  collection, query, where, getDocs, addDoc, 
+  doc, getDoc 
+} from 'firebase/firestore';
+import { db, isFirebaseMode } from './firebase';
+import { MockDB } from './mockDb';
+import type { Club, ClubMember, User, ClubType, ClubSocialLinks } from '../types';
+import { userService } from './userService';
+import { notificationService } from './notificationService';
+
+class ClubService {
+  // Discover clubs
+  async getClubs(city?: string): Promise<Club[]> {
+    if (isFirebaseMode && db) {
+      const constraints = [];
+      if (city) {
+        constraints.push(where('location.city', '==', city));
+      }
+      const q = query(collection(db, 'clubs'), ...constraints);
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Club));
+    } else {
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      if (city) {
+        return clubs.filter(c => c.location.city.toLowerCase() === city.toLowerCase());
+      }
+      return clubs;
+    }
+  }
+
+  // Get club by ID
+  async getClub(id: string): Promise<Club | null> {
+    if (isFirebaseMode && db) {
+      const snapshot = await getDoc(doc(db, 'clubs', id));
+      return snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as Club) : null;
+    } else {
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      return clubs.find(c => c.id === id) || null;
+    }
+  }
+
+  // Create chess club
+  async createClub(params: {
+    creatorId: string;
+    name: string;
+    description: string;
+    logoUrl: string;
+    coverUrl: string;
+    city: string;
+    type: ClubType;
+    socialLinks: ClubSocialLinks;
+  }): Promise<Club> {
+    const { creatorId, name, description, logoUrl, coverUrl, city, type, socialLinks } = params;
+
+    const newClub: Omit<Club, 'id'> = {
+      name,
+      description,
+      logoUrl: logoUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=150',
+      coverUrl: coverUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=800',
+      location: { city, type },
+      foundedAt: new Date().getFullYear().toString(),
+      creatorId,
+      membersCount: 1,
+      socialLinks,
+      createdAt: new Date().toISOString()
+    };
+
+    if (isFirebaseMode && db) {
+      const docRef = await addDoc(collection(db, 'clubs'), newClub);
+      // Create admin member record
+      return { id: docRef.id, ...newClub };
+    } else {
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      const id = `club_${Date.now()}`;
+      const club = { id, ...newClub };
+      clubs.push(club);
+      MockDB.saveCollection('CLUBS', clubs);
+
+      // Add creator as approved Admin member
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      members.push({
+        id: `${id}_${creatorId}`,
+        clubId: id,
+        userId: creatorId,
+        role: 'admin',
+        status: 'approved',
+        joinedAt: new Date().toISOString()
+      });
+      MockDB.saveCollection('CLUB_MEMBERS', members);
+
+      return club;
+    }
+  }
+
+  // Join club (puts user in pending status until approved by club owner)
+  async joinClub(clubId: string, userId: string): Promise<ClubMember> {
+    const user = await userService.getUser(userId);
+    if (!user) throw new Error('User not found.');
+
+    const club = await this.getClub(clubId);
+    if (!club) throw new Error('Club not found.');
+
+    const newMember: ClubMember = {
+      id: `${clubId}_${userId}`,
+      clubId,
+      userId,
+      role: 'member',
+      status: 'pending',
+      joinedAt: new Date().toISOString()
+    };
+
+    if (isFirebaseMode && db) {
+      // In firestore, write to clubMembers collection
+      return newMember;
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      
+      // Check if already in club
+      if (members.some(m => m.clubId === clubId && m.userId === userId)) {
+        throw new Error('You have already applied or joined this club.');
+      }
+
+      members.push(newMember);
+      MockDB.saveCollection('CLUB_MEMBERS', members);
+
+      // Notify Club Creator
+      await notificationService.createNotification({
+        recipientId: club.creatorId,
+        senderId: userId,
+        senderName: user.fullName,
+        senderAvatar: user.avatarUrl,
+        type: 'club_invite',
+        targetId: clubId,
+        title: 'New Club Join Request',
+        message: `${user.fullName} has requested to join your club: ${club.name}.`
+      });
+
+      return newMember;
+    }
+  }
+
+  // Approve member join request
+  async approveMember(clubId: string, userId: string): Promise<void> {
+    const club = await this.getClub(clubId);
+    if (!club) throw new Error('Club not found.');
+
+    if (isFirebaseMode && db) {
+      // update
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      const idx = members.findIndex(m => m.clubId === clubId && m.userId === userId);
+      if (idx !== -1) {
+        members[idx].status = 'approved';
+        MockDB.saveCollection('CLUB_MEMBERS', members);
+
+        // Increment club members count
+        const clubs = MockDB.getCollection<Club>('CLUBS');
+        const cIdx = clubs.findIndex(c => c.id === clubId);
+        if (cIdx !== -1) {
+          clubs[cIdx].membersCount += 1;
+          MockDB.saveCollection('CLUBS', clubs);
+        }
+
+        // Notify member
+        await notificationService.createNotification({
+          recipientId: userId,
+          senderId: club.creatorId,
+          senderName: club.name,
+          senderAvatar: club.logoUrl,
+          type: 'system',
+          targetId: clubId,
+          title: 'Club Request Approved ♟️',
+          message: `Your request to join ${club.name} has been approved!`
+        });
+      }
+    }
+  }
+
+  // Leave club
+  async leaveClub(clubId: string, userId: string): Promise<void> {
+    if (isFirebaseMode && db) {
+      // delete
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      const member = members.find(m => m.clubId === clubId && m.userId === userId);
+      
+      if (member) {
+        const filtered = members.filter(m => !(m.clubId === clubId && m.userId === userId));
+        MockDB.saveCollection('CLUB_MEMBERS', filtered);
+
+        // Decrement count if they were approved members
+        if (member.status === 'approved') {
+          const clubs = MockDB.getCollection<Club>('CLUBS');
+          const cIdx = clubs.findIndex(c => c.id === clubId);
+          if (cIdx !== -1) {
+            clubs[cIdx].membersCount = Math.max(1, clubs[cIdx].membersCount - 1);
+            MockDB.saveCollection('CLUBS', clubs);
+          }
+        }
+      }
+    }
+  }
+
+  // Get active roster list
+  async getMembers(clubId: string): Promise<{ member: ClubMember; user: User }[]> {
+    if (isFirebaseMode && db) {
+      return [];
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS').filter(m => m.clubId === clubId);
+      const result: { member: ClubMember; user: User }[] = [];
+
+      for (const member of members) {
+        const user = await userService.getUser(member.userId);
+        if (user) {
+          result.push({ member, user });
+        }
+      }
+
+      return result;
+    }
+  }
+
+  // Check user join state
+  async checkMemberStatus(clubId: string, userId: string): Promise<ClubMember['status'] | 'not_joined'> {
+    if (isFirebaseMode && db) {
+      return 'not_joined';
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      const member = members.find(m => m.clubId === clubId && m.userId === userId);
+      return member ? member.status : 'not_joined';
+    }
+  }
+}
+
+export const clubService = new ClubService();

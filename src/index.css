@@ -1,0 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-charcoal: #0a0a0c;
+  --color-darkcard: #141418;
+  --color-darkborder: #222228;
+  --color-darkhover: #1e1e24;
+  --color-ivory: #fcfaf7;
+  --color-gold: #d4af37;
+  --color-gold-hover: #c09e2f;
+  --color-gold-muted: rgba(212, 175, 55, 0.15);
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+}
+
+/* Custom global rules */
+:root {
+  color-scheme: dark;
+  background-color: var(--color-charcoal);
+  color: var(--color-ivory);
+}
+
+body {
+  font-family: var(--font-sans);
+  margin: 0;
+  overflow-x: hidden;
+}
+
+/* Premium Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-charcoal);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-darkborder);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-muted);
+}
+
+/* Custom interactive ring */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-charcoal;
+}
+
+/* Glassmorphism subtle variant */
+.glass-panel {
+  background: rgba(20, 20, 24, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-darkborder);
+}
+
+/* Custom keyframes for micro-animations */
+@keyframes pulse-gold {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-gold {
+  animation: pulse-gold 3s infinite ease-in-out;
+}

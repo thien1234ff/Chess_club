@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // High-level access checks
+    function signedIn() { 
+      return request.auth != null; 
+    }
+    
+    function isOwner(uid) { 
+      return signedIn() && request.auth.uid == uid; 
+    }
+    
+    function getUserData() { 
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; 
+    }
+    
+    function hasRole(role) { 
+      return signedIn() && getUserData().role == role; 
+    }
+    
+    function isAdmin() { 
+      return hasRole('admin'); 
+    }
+    
+    function isModerator() { 
+      return hasRole('moderator') || isAdmin(); 
+    }
+
+    // Collection Security Rules
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == userId && request.resource.data.role == 'player';
+      allow update: if isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])) || isAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    match /coaches/{coachId} {
+      allow read: if true;
+      allow create: if isOwner(coachId) && request.resource.data.verified == false;
+      allow update: if isOwner(coachId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['verified'])) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /bookings/{bookingId} {
+      allow read: if signedIn() && (request.auth.uid == resource.data.studentId || request.auth.uid == resource.data.coachId || isAdmin());
+      allow create: if signedIn() && request.auth.uid == request.resource.data.studentId;
+      allow update: if signedIn() && (request.auth.uid == resource.data.studentId || request.auth.uid == resource.data.coachId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /clubs/{clubId} {
+      allow read: if true;
+      allow create: if signedIn();
+      allow update, delete: if signedIn() && (request.auth.uid == resource.data.creatorId || isAdmin());
+    }
+
+    match /clubMembers/{memberId} {
+      allow read: if true;
+      allow create, update: if signedIn();
+      allow delete: if signedIn() && (request.auth.uid == resource.data.userId || isAdmin() || 
+        get(/databases/$(database)/documents/clubs/$(resource.data.clubId)).data.creatorId == request.auth.uid);
+    }
+
+    match /tournaments/{tournamentId} {
+      allow read: if true;
+      allow create: if hasRole('tournament_organizer') || isAdmin();
+      allow update, delete: if signedIn() && (request.auth.uid == resource.data.organizerId || isAdmin());
+    }
+
+    match /tournamentParticipants/{participantId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow update: if signedIn() && (request.auth.uid == resource.data.userId || isAdmin() || 
+        get(/databases/$(database)/documents/tournaments/$(resource.data.tournamentId)).data.organizerId == request.auth.uid);
+      allow delete: if signedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+    }
+
+    match /tournamentRounds/{roundId} {
+      allow read: if true;
+      allow write: if isAdmin() || hasRole('tournament_organizer');
+    }
+
+    match /tournamentMatches/{matchId} {
+      allow read: if true;
+      allow write: if isAdmin() || hasRole('tournament_organizer');
+    }
+
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.authorId;
+      allow update: if signedIn() && (request.auth.uid == resource.data.authorId || isModerator());
+      allow delete: if signedIn() && (request.auth.uid == resource.data.authorId || isModerator());
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.authorId;
+      allow update: if signedIn() && (request.auth.uid == resource.data.authorId || isModerator());
+      allow delete: if signedIn() && (request.auth.uid == resource.data.authorId || isModerator());
+    }
+
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.userId;
+      allow delete: if signedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+    }
+
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if signedIn() && request.auth.uid == request.resource.data.followerId;
+      allow delete: if signedIn() && (request.auth.uid == request.resource.data.followerId || isAdmin());
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && request.auth.uid == resource.data.recipientId;
+      allow create: if signedIn();
+      allow update: if signedIn() && request.auth.uid == resource.data.recipientId;
+      allow delete: if signedIn() && request.auth.uid == resource.data.recipientId;
+    }
+
+    match /conversations/{conversationId} {
+      allow read: if signedIn() && (request.auth.uid in resource.data.participants);
+      allow create: if signedIn();
+      allow update: if signedIn() && (request.auth.uid in resource.data.participants);
+      allow delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if signedIn() && (request.auth.uid == resource.data.senderId || 
+        request.auth.uid in get(/databases/$(database)/documents/conversations/$(resource.data.conversationId)).data.participants);
+      allow create: if signedIn() && request.auth.uid == request.resource.data.senderId;
+      allow update, delete: if isAdmin();
+    }
+
+    match /reports/{reportId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == resource.data.reporterId);
+      allow create: if signedIn();
+      allow update, delete: if isAdmin();
+    }
+  }
+}
