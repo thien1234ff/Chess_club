@@ -61,9 +61,11 @@ export class MockDB {
       
       // Empty relationships arrays initially
       setStorageItem(KEYS.CLUB_MEMBERS, [
-        { id: 'club_hanoi_chess_organizer_hanoi', clubId: 'club_hanoi_chess', userId: 'organizer_hanoi', role: 'admin', status: 'approved', joinedAt: seeder.seedUsers[4].joinedAt },
-        { id: 'club_saigon_stars_club_admin_saigon', clubId: 'club_saigon_stars', userId: 'club_admin_saigon', role: 'admin', status: 'approved', joinedAt: seeder.seedUsers[5].joinedAt },
-        { id: 'club_bach_khoa_player_1', clubId: 'club_bach_khoa', userId: 'player_1', role: 'admin', status: 'approved', joinedAt: seeder.seedUsers[6].joinedAt }
+        { id: 'club_hanoi_chess_organizer_hanoi', clubId: 'club_hanoi_chess', userId: 'organizer_hanoi', role: 'president', status: 'approved', joinedAt: seeder.seedUsers[4].joinedAt },
+        { id: 'club_hanoi_chess_player_2', clubId: 'club_hanoi_chess', userId: 'player_2', role: 'vice_president', status: 'approved', joinedAt: seeder.seedUsers[7].joinedAt },
+        { id: 'club_hanoi_chess_player_3', clubId: 'club_hanoi_chess', userId: 'player_3', role: 'member', status: 'approved', joinedAt: seeder.seedUsers[8].joinedAt },
+        { id: 'club_saigon_stars_club_admin_saigon', clubId: 'club_saigon_stars', userId: 'club_admin_saigon', role: 'president', status: 'approved', joinedAt: seeder.seedUsers[5].joinedAt },
+        { id: 'club_bach_khoa_player_1', clubId: 'club_bach_khoa', userId: 'player_1', role: 'president', status: 'approved', joinedAt: seeder.seedUsers[6].joinedAt }
       ]);
       setStorageItem(KEYS.TOURNAMENT_PARTICIPANTS, [
         { id: 'tour_vietnam_open_2026_player_1', tournamentId: 'tour_vietnam_open_2026', userId: 'player_1', fullName: 'Phạm Minh Đức', rating: 1145, status: 'registered', score: 0, tiebreak: 0, opponentsPlayed: [], colorHistory: [] },

@@ -121,11 +121,13 @@ export interface Club {
   createdAt: string; // ISO date string
 }
 
+export type ClubMemberRole = 'president' | 'vice_president' | 'member' | 'admin';
+
 export interface ClubMember {
   id: string; // clubId_userId
   clubId: string;
   userId: string;
-  role: 'admin' | 'member';
+  role: ClubMemberRole;
   status: 'pending' | 'approved';
   joinedAt: string; // ISO date string
 }

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { clubService } from '../services/clubService';
 import { userService } from '../services/userService';
 import { useToast } from '../contexts/ToastContext';
-import type { Club, ClubMember, User, ClubType, ClubSocialLinks } from '../types';
+import type { Club, ClubMember, User, ClubType, ClubSocialLinks, ClubMemberRole } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
@@ -13,7 +13,8 @@ import Spinner from '../components/ui/Spinner';
 import ImageUploader from '../components/ui/ImageUploader';
 import { 
   Users, MapPin, Calendar, Globe, 
-  MessageSquare, Plus, Check, Trash2, Eye 
+  MessageSquare, Plus, Check, Trash2, Eye,
+  Crown, Star 
 } from 'lucide-react';
 
 export const Clubs: React.FC = () => {
@@ -170,6 +171,42 @@ export const Clubs: React.FC = () => {
     }
   };
 
+  const handleUpdateMemberRole = async (targetUserId: string, newRole: ClubMemberRole) => {
+    if (!detailClub) return;
+    try {
+      await clubService.updateMemberRole(detailClub.id, targetUserId, newRole);
+      const roleLabel = newRole === 'president' ? 'Chủ nhiệm' : newRole === 'vice_president' ? 'Phó Chủ nhiệm (PCN)' : 'Thành viên';
+      addToast(`Đã phân công vai trò thành: ${roleLabel}`, 'success');
+      loadData();
+    } catch (err) {
+      addToast('Không thể cập nhật vai trò thành viên.', 'error');
+    }
+  };
+
+  const renderMemberRoleBadge = (role: ClubMemberRole) => {
+    if (role === 'president' || role === 'admin') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-gold bg-gold/10 border border-gold/30 px-2 py-0.5 rounded-md">
+          <Crown size={11} className="text-gold" />
+          Chủ nhiệm
+        </span>
+      );
+    }
+    if (role === 'vice_president') {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-md">
+          <Star size={11} className="text-amber-400" />
+          Phó Chủ nhiệm (PCN)
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-neutral-400 bg-neutral-800 border border-darkborder px-2 py-0.5 rounded-md">
+        ♟ Thành viên
+      </span>
+    );
+  };
+
   const setTab = (tabName: string) => {
     setSearchParams({ tab: tabName });
   };
@@ -188,6 +225,12 @@ export const Clubs: React.FC = () => {
     const isPending = memberStatus === 'pending';
     const pendingMembers = members.filter(m => m.member.status === 'pending');
     const approvedMembers = members.filter(m => m.member.status === 'approved');
+
+    const currentUserMember = approvedMembers.find(m => m.user.uid === currentUser?.uid);
+    const currentUserRole = currentUserMember?.member.role || (detailClub.creatorId === currentUser?.uid ? 'president' : 'not_joined');
+    const isPresident = currentUserRole === 'president' || currentUserRole === 'admin' || detailClub.creatorId === currentUser?.uid;
+    const isVicePresident = currentUserRole === 'vice_president';
+    const isClubAdmin = isPresident || isVicePresident;
 
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
@@ -239,8 +282,10 @@ export const Clubs: React.FC = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
-                {isClubAdmin ? (
-                  <Badge variant="gold" size="md" className="py-2 text-center block">Bạn là Chủ CLB</Badge>
+                {isPresident ? (
+                  <Badge variant="gold" size="md" className="py-2 text-center block">👑 Bạn là Chủ nhiệm CLB</Badge>
+                ) : isVicePresident ? (
+                  <Badge variant="warning" size="md" className="py-2 text-center block">⭐ Bạn là Phó Chủ nhiệm (PCN)</Badge>
                 ) : isApproved ? (
                   <Button variant="outline" className="w-full text-xs text-red-500" onClick={handleLeaveClub}>
                     Rời Câu lạc bộ
@@ -308,19 +353,26 @@ export const Clubs: React.FC = () => {
 
             {activeSubTab === 'members' && (
               <Card>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Danh sách Thành viên</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Danh sách Thành viên ({approvedMembers.length})</h3>
                 {approvedMembers.length === 0 ? (
                   <p className="text-xs text-neutral-500 italic">Chưa có thành viên chính thức nào trong câu lạc bộ.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {approvedMembers.map(({ user }) => (
-                      <div key={user.uid} className="flex items-center gap-3 p-3 bg-charcoal/50 border border-darkborder/50 rounded-xl hover:border-neutral-700 transition-colors">
-                        <div className="h-10 w-10 rounded-full overflow-hidden bg-darkborder shrink-0">
-                          <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                    {approvedMembers.map(({ member, user }) => (
+                      <div key={user.uid} className="flex items-center justify-between p-3 bg-charcoal/50 border border-darkborder/50 rounded-xl hover:border-neutral-700 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full overflow-hidden bg-darkborder shrink-0">
+                            <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline block">{user.fullName}</Link>
+                            </div>
+                            <span className="text-[10px] text-neutral-500 block">@{user.username}</span>
+                          </div>
                         </div>
                         <div>
-                          <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline block">{user.fullName}</Link>
-                          <span className="text-[10px] text-neutral-500">@{user.username}</span>
+                          {renderMemberRoleBadge(member.role)}
                         </div>
                       </div>
                     ))}
@@ -361,14 +413,43 @@ export const Clubs: React.FC = () => {
 
                 {/* Manage active roster */}
                 <Card>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Quản lý Danh sách Thành viên</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Quản lý Thành viên &amp; Phân công Vai trò</h3>
                   <div className="divide-y divide-darkborder">
-                    {approvedMembers.filter(m => m.user.uid !== detailClub.creatorId).map(({ user }) => (
-                      <div key={user.uid} className="flex justify-between items-center py-3">
-                        <span className="font-bold text-sm text-white">{user.fullName}</span>
-                        <Button variant="outline" size="sm" className="text-red-500 text-xs py-1" onClick={() => handleRemoveMember(user.uid)}>
-                          Xóa khỏi CLB
-                        </Button>
+                    {approvedMembers.map(({ member, user }) => (
+                      <div key={user.uid} className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3 gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-full overflow-hidden bg-darkborder shrink-0">
+                            <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <Link to={`/profile/${user.uid}`} className="font-bold text-sm text-white hover:underline">{user.fullName}</Link>
+                              {renderMemberRoleBadge(member.role)}
+                            </div>
+                            <span className="text-[10px] text-neutral-500 block">@{user.username}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                          {/* Role selector dropdown - enabled for President / Creator */}
+                          {isPresident && user.uid !== detailClub.creatorId && (
+                            <select
+                              value={member.role}
+                              onChange={(e) => handleUpdateMemberRole(user.uid, e.target.value as ClubMemberRole)}
+                              className="bg-charcoal border border-darkborder focus:border-gold rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer"
+                            >
+                              <option value="member">♟ Thành viên</option>
+                              <option value="vice_president">⭐ Phó Chủ nhiệm (PCN)</option>
+                              <option value="president">👑 Chủ nhiệm</option>
+                            </select>
+                          )}
+
+                          {user.uid !== detailClub.creatorId && (
+                            <Button variant="outline" size="sm" className="text-red-500 text-xs py-1" onClick={() => handleRemoveMember(user.uid)}>
+                              Xóa khỏi CLB
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

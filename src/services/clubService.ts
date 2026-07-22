@@ -4,7 +4,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseMode } from './firebase';
 import { MockDB } from './mockDb';
-import type { Club, ClubMember, User, ClubType, ClubSocialLinks } from '../types';
+import type { Club, ClubMember, User, ClubType, ClubSocialLinks, ClubMemberRole } from '../types';
 import { userService } from './userService';
 import { notificationService } from './notificationService';
 
@@ -76,13 +76,13 @@ class ClubService {
       clubs.push(club);
       MockDB.saveCollection('CLUBS', clubs);
 
-      // Add creator as approved Admin member
+      // Add creator as approved President member
       const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
       members.push({
         id: `${id}_${creatorId}`,
         clubId: id,
         userId: creatorId,
-        role: 'admin',
+        role: 'president',
         status: 'approved',
         joinedAt: new Date().toISOString()
       });
@@ -228,6 +228,37 @@ class ClubService {
       const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
       const member = members.find(m => m.clubId === clubId && m.userId === userId);
       return member ? member.status : 'not_joined';
+    }
+  }
+
+  // Update member role (e.g. President, Vice President, Member)
+  async updateMemberRole(clubId: string, userId: string, newRole: ClubMemberRole): Promise<void> {
+    const club = await this.getClub(clubId);
+    if (!club) throw new Error('Club not found.');
+
+    if (isFirebaseMode && db) {
+      // update role in firestore
+    } else {
+      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
+      const idx = members.findIndex(m => m.clubId === clubId && m.userId === userId);
+      if (idx !== -1) {
+        members[idx].role = newRole;
+        MockDB.saveCollection('CLUB_MEMBERS', members);
+
+        const roleLabel = newRole === 'president' ? 'Chủ nhiệm' : newRole === 'vice_president' ? 'Phó Chủ nhiệm (PCN)' : 'Thành viên';
+
+        // Notify member of role assignment
+        await notificationService.createNotification({
+          recipientId: userId,
+          senderId: club.creatorId,
+          senderName: club.name,
+          senderAvatar: club.logoUrl,
+          type: 'system',
+          targetId: clubId,
+          title: 'Cập nhật vai trò CLB 🎖️',
+          message: `Vai trò của bạn tại ${club.name} đã được thay đổi thành: ${roleLabel}.`
+        });
+      }
     }
   }
 }
