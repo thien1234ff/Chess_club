@@ -277,7 +277,7 @@ export const AdminDashboard: React.FC = () => {
         coverUrl: editCoverUrl,
         location: {
           city: editCity,
-          type: activeClub?.location.type || 'hybrid'
+          type: activeClub?.location.type || 'university'
         }
       });
       addToast('Đã lưu thông tin Cài đặt Câu lạc bộ!', 'success');
@@ -462,6 +462,8 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               )}
             </Card>
+          )}
+
           {/* PENDING CLUB REQUESTS PANEL */}
           {systemTab === 'club_requests' && (
             <Card className="space-y-4">
