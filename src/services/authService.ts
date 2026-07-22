@@ -43,7 +43,8 @@ class AuthService {
               ratings: { rapid: 1200, blitz: 1200, classical: 1200, puzzle: 1200 },
               stats: { gamesPlayed: 0, wins: 0, draws: 0, losses: 0 },
               location: { city: 'Hanoi', country: 'VN' },
-              joinedAt: new Date().toISOString()
+              joinedAt: new Date().toISOString(),
+              needsSetup: true
             };
             try {
               // Write directly to Firestore using static imports
@@ -194,7 +195,8 @@ class AuthService {
           ratings: { rapid: 1200, blitz: 1200, classical: 1200, puzzle: 1200 },
           stats: { gamesPlayed: 0, wins: 0, draws: 0, losses: 0 },
           location: { city: 'Hanoi', country: 'VN' },
-          joinedAt: new Date().toISOString()
+          joinedAt: new Date().toISOString(),
+          needsSetup: true
         };
         await setDoc(doc(db, 'users', uid), profile);
       }

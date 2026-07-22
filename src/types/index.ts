@@ -36,6 +36,7 @@ export interface User {
   stats: UserStats;
   location: UserLocation;
   joinedAt: string; // ISO date string
+  needsSetup?: boolean;
   roleRequest?: {
     role: UserRole;
     experienceYears: number;
