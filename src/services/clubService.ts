@@ -39,6 +39,20 @@ class ClubService {
     }
   }
 
+  // Update club details
+  async updateClub(id: string, updates: Partial<Club>): Promise<void> {
+    if (isFirebaseMode && db) {
+      await updateDoc(doc(db, 'clubs', id), updates);
+    } else {
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      const idx = clubs.findIndex(c => c.id === id);
+      if (idx !== -1) {
+        clubs[idx] = { ...clubs[idx], ...updates };
+        MockDB.saveCollection('CLUBS', clubs);
+      }
+    }
+  }
+
   // Create chess club
   async createClub(params: {
     creatorId: string;

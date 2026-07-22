@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Bell, MessageSquare, User as UserIcon, LogOut, ShieldAlert, Award } from 'lucide-react';
+import { Menu, X, Bell, MessageSquare, User as UserIcon, LogOut, ShieldAlert, Award, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { notificationService } from '../../services/notificationService';
 import { messagingService } from '../../services/messagingService';
@@ -121,12 +121,15 @@ export const Navbar: React.FC = () => {
                   )}
                 </Link>
 
-                {/* Admin Status Icon */}
-                {(currentUser.role === 'admin' || currentUser.role === 'moderator') && (
-                  <Link to="/admin" className="p-1.5 text-amber-500 hover:text-amber-400 transition-colors" title="Bảng điều khiển Admin">
-                    <ShieldAlert size={18} />
-                  </Link>
-                )}
+                {/* Dashboard Button */}
+                <Link 
+                  to="/admin" 
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold/10 border border-gold/40 text-gold hover:bg-gold/20 font-bold text-xs transition-all shrink-0" 
+                  title="Bảng điều khiển Quản trị hệ thống & CLB"
+                >
+                  <LayoutDashboard size={14} />
+                  <span>Bảng Quản Trị</span>
+                </Link>
 
                 {/* Profile Link */}
                 <Link 
