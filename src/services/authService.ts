@@ -16,43 +16,30 @@ export type AuthStateCallback = (user: User | null) => void;
 class AuthService {
   private authStateListeners: AuthStateCallback[] = [];
 
-  constructor() {
-    if (isFirebaseMode && auth) {
-      // Synchronize Firebase Auth changes into ChessHub user profile structure
-      auth.onAuthStateChanged(async (firebaseUser) => {
-        if (firebaseUser) {
-          const profile = await this.getUserProfile(firebaseUser.uid);
-          this.triggerListeners(profile);
-        } else {
-          this.triggerListeners(null);
-        }
-      });
-    }
+  private triggerListeners(user: User | null) {
+    this.authStateListeners.forEach(listener => listener(user));
   }
 
   // Register listener for auth state change
   onAuthStateChange(callback: AuthStateCallback): () => void {
-    this.authStateListeners.push(callback);
-    
-    // Initial call
-    if (isFirebaseMode) {
-      if (auth?.currentUser) {
-        this.getUserProfile(auth.currentUser.uid).then(profile => callback(profile));
-      } else {
-        callback(null);
-      }
+    if (isFirebaseMode && auth) {
+      return auth.onAuthStateChanged(async (firebaseUser) => {
+        if (firebaseUser) {
+          const profile = await this.getUserProfile(firebaseUser.uid);
+          callback(profile);
+        } else {
+          callback(null);
+        }
+      });
     } else {
+      this.authStateListeners.push(callback);
       callback(MockDB.getCurrentUser());
+      
+      // Return unsubscribe function for mock mode
+      return () => {
+        this.authStateListeners = this.authStateListeners.filter(l => l !== callback);
+      };
     }
-
-    // Return unsubscribe function
-    return () => {
-      this.authStateListeners = this.authStateListeners.filter(l => l !== callback);
-    };
-  }
-
-  private triggerListeners(user: User | null) {
-    this.authStateListeners.forEach(listener => listener(user));
   }
 
   // Get user profile from Firestore or MockDB
