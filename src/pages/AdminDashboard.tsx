@@ -32,7 +32,8 @@ export const AdminDashboard: React.FC = () => {
   // System Admin Data
   const [users, setUsers] = useState<User[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
-  const [systemTab, setSystemTab] = useState<'applications' | 'reports' | 'users'>('applications');
+  const [pendingClubs, setPendingClubs] = useState<Club[]>([]);
+  const [systemTab, setSystemTab] = useState<'applications' | 'club_requests' | 'reports' | 'users'>('applications');
 
   // Club Management Data
   const [myClubs, setMyClubs] = useState<{ club: Club; userRole: ClubMemberRole }[]>([]);
@@ -64,6 +65,10 @@ export const AdminDashboard: React.FC = () => {
         listReports = MockDB.getCollection<Report>('REPORTS');
       }
       setReports(listReports);
+
+      // Load All Clubs including Pending for Admin
+      const allClubsWithPending = await clubService.getClubs(undefined, true);
+      setPendingClubs(allClubsWithPending.filter(c => c.status === 'pending'));
 
       // 2. Load Managed Clubs for Current User (Creator automatically recognized as President)
       if (currentUser) {
@@ -200,6 +205,26 @@ export const AdminDashboard: React.FC = () => {
       loadData();
     } catch (err: any) {
       addToast('Cấm người dùng thất bại.', 'error');
+    }
+  };
+
+  const handleApproveClubCreation = async (clubId: string) => {
+    try {
+      await clubService.approveClub(clubId);
+      addToast('Đã phê duyệt thành lập Câu lạc bộ mới!', 'success');
+      loadData();
+    } catch (err) {
+      addToast('Phê duyệt CLB thất bại.', 'error');
+    }
+  };
+
+  const handleRejectClubCreation = async (clubId: string) => {
+    try {
+      await clubService.rejectClub(clubId);
+      addToast('Đã từ chối đơn thành lập CLB.', 'info');
+      loadData();
+    } catch (err) {
+      addToast('Thao tác thất bại.', 'error');
     }
   };
 
@@ -374,13 +399,16 @@ export const AdminDashboard: React.FC = () => {
 
           {/* System Sub Tabs */}
           <div className="flex border-b border-darkborder gap-2">
-            <button onClick={() => setSystemTab('applications')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'applications' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
+            <button onClick={() => setSystemTab('applications')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'applications' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
               Hồ sơ Duyệt Danh hiệu ({pendingApplications.length})
             </button>
-            <button onClick={() => setSystemTab('reports')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'reports' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
+            <button onClick={() => setSystemTab('club_requests')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'club_requests' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
+              Duyệt Thành Lập CLB ({pendingClubs.length})
+            </button>
+            <button onClick={() => setSystemTab('reports')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'reports' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
               Báo cáo Vi phạm ({activeReports.length})
             </button>
-            <button onClick={() => setSystemTab('users')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'users' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
+            <button onClick={() => setSystemTab('users')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${systemTab === 'users' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
               Quản lý Người dùng ({users.length})
             </button>
           </div>
@@ -433,6 +461,46 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </Card>
+          {/* PENDING CLUB REQUESTS PANEL */}
+          {systemTab === 'club_requests' && (
+            <Card className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">
+                Đơn Thành Lập Câu Lạc Bộ Chờ Duyệt ({pendingClubs.length})
+              </h3>
+              {pendingClubs.length === 0 ? (
+                <p className="text-xs text-neutral-500 italic">Không có đơn tạo CLB nào đang chờ duyệt.</p>
+              ) : (
+                <div className="space-y-4 divide-y divide-darkborder">
+                  {pendingClubs.map((c) => (
+                    <div key={c.id} className="pt-4 first:pt-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                      <div className="flex items-start gap-4">
+                        <div className="h-14 w-14 rounded-xl overflow-hidden bg-darkborder shrink-0 border border-neutral-700">
+                          <img src={c.logoUrl} alt={c.name} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white text-base">{c.name}</span>
+                            <Badge variant="gold">{c.location.type}</Badge>
+                            <Badge variant="default">{c.location.city}</Badge>
+                          </div>
+                          <p className="text-xs text-neutral-400 max-w-2xl leading-relaxed">"{c.description}"</p>
+                          <span className="text-[10px] text-neutral-500 block">ID Người tạo: {c.creatorId} | Ngày nộp đơn: {new Date(c.createdAt).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 shrink-0">
+                        <Button variant="gold" size="sm" onClick={() => handleApproveClubCreation(c.id)}>
+                          Duyệt Thành Lập
+                        </Button>
+                        <Button variant="outline" size="sm" className="text-red-500" onClick={() => handleRejectClubCreation(c.id)}>
+                          Từ Chối
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </Card>

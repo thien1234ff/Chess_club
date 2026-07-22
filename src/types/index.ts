@@ -118,6 +118,7 @@ export interface Club {
   creatorId: string;
   membersCount: number;
   socialLinks: ClubSocialLinks;
+  status?: 'pending' | 'approved' | 'rejected';
   createdAt: string; // ISO date string
 }
 

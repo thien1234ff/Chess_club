@@ -10,7 +10,7 @@ import { notificationService } from './notificationService';
 
 class ClubService {
   // Discover clubs
-  async getClubs(city?: string): Promise<Club[]> {
+  async getClubs(city?: string, includePending: boolean = false): Promise<Club[]> {
     if (isFirebaseMode && db) {
       const constraints = [];
       if (city) {
@@ -18,11 +18,18 @@ class ClubService {
       }
       const q = query(collection(db, 'clubs'), ...constraints);
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Club));
+      let list = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Club));
+      if (!includePending) {
+        list = list.filter(c => !c.status || c.status === 'approved');
+      }
+      return list;
     } else {
-      const clubs = MockDB.getCollection<Club>('CLUBS');
+      let clubs = MockDB.getCollection<Club>('CLUBS');
       if (city) {
-        return clubs.filter(c => c.location.city.toLowerCase() === city.toLowerCase());
+        clubs = clubs.filter(c => c.location.city.toLowerCase() === city.toLowerCase());
+      }
+      if (!includePending) {
+        clubs = clubs.filter(c => !c.status || c.status === 'approved');
       }
       return clubs;
     }
@@ -76,6 +83,7 @@ class ClubService {
       creatorId,
       membersCount: 1,
       socialLinks,
+      status: 'pending',
       createdAt: new Date().toISOString()
     };
 
@@ -245,35 +253,62 @@ class ClubService {
     }
   }
 
-  // Update member role (e.g. President, Vice President, Member)
-  async updateMemberRole(clubId: string, userId: string, newRole: ClubMemberRole): Promise<void> {
+  // Approve club creation by System Admin
+  async approveClub(clubId: string): Promise<void> {
     const club = await this.getClub(clubId);
     if (!club) throw new Error('Club not found.');
 
     if (isFirebaseMode && db) {
-      // update role in firestore
+      await updateDoc(doc(db, 'clubs', clubId), { status: 'approved' });
     } else {
-      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
-      const idx = members.findIndex(m => m.clubId === clubId && m.userId === userId);
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      const idx = clubs.findIndex(c => c.id === clubId);
       if (idx !== -1) {
-        members[idx].role = newRole;
-        MockDB.saveCollection('CLUB_MEMBERS', members);
-
-        const roleLabel = newRole === 'president' ? 'Chủ nhiệm' : newRole === 'vice_president' ? 'Phó Chủ nhiệm (PCN)' : 'Thành viên';
-
-        // Notify member of role assignment
-        await notificationService.createNotification({
-          recipientId: userId,
-          senderId: club.creatorId,
-          senderName: club.name,
-          senderAvatar: club.logoUrl,
-          type: 'system',
-          targetId: clubId,
-          title: 'Cập nhật vai trò CLB 🎖️',
-          message: `Vai trò của bạn tại ${club.name} đã được thay đổi thành: ${roleLabel}.`
-        });
+        clubs[idx].status = 'approved';
+        MockDB.saveCollection('CLUBS', clubs);
       }
     }
+
+    // Notify creator
+    await notificationService.createNotification({
+      recipientId: club.creatorId,
+      senderId: 'admin',
+      senderName: 'Ban Quản Trị ChessHub',
+      senderAvatar: club.logoUrl,
+      type: 'system',
+      targetId: clubId,
+      title: 'CLB đã được Phê Duyệt 🏰',
+      message: `Chúc mừng! Đơn thành lập Câu lạc bộ "${club.name}" của bạn đã được Admin phê duyệt.`
+    });
+  }
+
+  // Reject club creation by System Admin
+  async rejectClub(clubId: string): Promise<void> {
+    const club = await this.getClub(clubId);
+    if (!club) throw new Error('Club not found.');
+
+    if (isFirebaseMode && db) {
+      await updateDoc(doc(db, 'clubs', clubId), { status: 'rejected' });
+    } else {
+      const clubs = MockDB.getCollection<Club>('CLUBS');
+      const idx = clubs.findIndex(c => c.id === clubId);
+      if (idx !== -1) {
+        clubs[idx].status = 'rejected';
+        MockDB.saveCollection('CLUBS', clubs);
+      }
+    }
+
+    // Notify creator
+    await notificationService.createNotification({
+      recipientId: club.creatorId,
+      senderId: 'admin',
+      senderName: 'Ban Quản Trị ChessHub',
+      senderAvatar: club.logoUrl,
+      type: 'system',
+      targetId: clubId,
+      title: 'Đơn thành lập CLB bị từ chối ⚠️',
+      message: `Rất tiếc, đơn thành lập Câu lạc bộ "${club.name}" của bạn chưa đạt yêu cầu thành lập.`
+    });
   }
 }
 

@@ -278,6 +278,7 @@ export const seedClubs: Club[] = [
     creatorId: 'club_admin_saigon',
     membersCount: 185,
     socialLinks: { facebook: 'https://facebook.com/saigonchessstars' },
+    status: 'approved',
     createdAt: daysAgo(250)
   },
   {

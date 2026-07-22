@@ -107,7 +107,7 @@ export const Clubs: React.FC = () => {
         socialLinks: { facebook, website }
       });
 
-      addToast('Tạo câu lạc bộ thành công!', 'success');
+      addToast('Đơn tạo câu lạc bộ đã được gửi đến Admin để phê duyệt!', 'success');
       setSearchParams({ tab: 'discover' });
     } catch (err) {
       addToast('Tạo câu lạc bộ thất bại.', 'error');
@@ -246,6 +246,13 @@ export const Clubs: React.FC = () => {
             <div className="h-full w-full bg-gradient-to-r from-neutral-900 to-darkborder" />
           )}
         </div>
+
+        {/* Pending Approval Banner */}
+        {detailClub.status === 'pending' && (
+          <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl mb-6 text-xs text-amber-400 flex items-center justify-between">
+            <span>⚠️ Câu lạc bộ này đang trong quá trình chờ Admin hệ thống phê duyệt thành lập.</span>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column: Club logo & statistics card */}
