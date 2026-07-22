@@ -10,6 +10,7 @@ import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
+import ImageUploader from '../components/ui/ImageUploader';
 import { Shield, Clock, MapPin, Check, Play } from 'lucide-react';
 
 export const Tournaments: React.FC = () => {
@@ -46,6 +47,7 @@ export const Tournaments: React.FC = () => {
   const [tourType, setTourType] = useState<'online' | 'offline'>('offline');
   const [city, setCity] = useState('Hà Nội');
   const [address, setAddress] = useState('');
+  const [bannerUrl, setBannerUrl] = useState('');
 
   // Creation State
   const [isCreating, setIsCreating] = useState(false);
@@ -135,7 +137,7 @@ export const Tournaments: React.FC = () => {
         startDate: new Date(startDate).toISOString(),
         endDate: new Date(endDate).toISOString(),
         registrationDeadline: new Date(deadline).toISOString(),
-        bannerUrl: 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=800',
+        bannerUrl: bannerUrl || 'https://images.unsplash.com/photo-1529699211952-734e80c4d42b?w=800',
         location: {
           type: tourType,
           city,
@@ -631,6 +633,7 @@ export const Tournaments: React.FC = () => {
           <h3 className="text-lg font-bold font-display text-white border-b border-darkborder pb-3 mb-6">Tạo Giải đấu Mới</h3>
           <form onSubmit={handleCreateTournament} className="space-y-4">
             <Input label="Tên Giải đấu" type="text" placeholder="Ví dụ: Giải Cờ vua Mùa Thu ChessHub 2026" value={name} onChange={(e) => setName(e.target.value)} required />
+            <ImageUploader label="Ảnh Banner Giải đấu (Cloudinary)" value={bannerUrl} onChange={setBannerUrl} />
             <Input label="Mô tả" isTextArea rows={4} placeholder="Tóm tắt điểm nổi bật của giải đấu, đối tượng tham gia..." value={description} onChange={(e) => setDescription(e.target.value)} required />
             <Input label="Luật thi đấu đầy đủ" isTextArea rows={4} placeholder="Lịch trình thi đấu, quy định thời gian, phạt..." value={rules} onChange={(e) => setRules(e.target.value)} required />
 

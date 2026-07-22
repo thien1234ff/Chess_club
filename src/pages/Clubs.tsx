@@ -10,6 +10,7 @@ import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
+import ImageUploader from '../components/ui/ImageUploader';
 import { 
   Users, MapPin, Calendar, Globe, 
   MessageSquare, Plus, Check, Trash2, Eye 
@@ -435,9 +436,9 @@ export const Clubs: React.FC = () => {
             <Input label="Tên Câu lạc bộ" type="text" placeholder="Ví dụ: Câu lạc bộ Cờ vua Bách Khoa HUST" value={name} onChange={(e) => setName(e.target.value)} required />
             <Input label="Mô tả" isTextArea rows={4} placeholder="Tóm tắt lịch sinh hoạt, định hướng hoạt động..." value={description} onChange={(e) => setDescription(e.target.value)} required />
             
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="URL Logo (Tùy chọn)" type="text" placeholder="https://images.unsplash.com/..." value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
-              <Input label="URL Ảnh bìa (Tùy chọn)" type="text" placeholder="https://images.unsplash.com/..." value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <ImageUploader label="Logo CLB (Cloudinary)" value={logoUrl} onChange={setLogoUrl} />
+              <ImageUploader label="Ảnh bìa CLB (Cloudinary)" value={coverUrl} onChange={setCoverUrl} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">

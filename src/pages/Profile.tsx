@@ -14,6 +14,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Modal } from '../components/ui/Modal';
 import Spinner from '../components/ui/Spinner';
+import ImageUploader from '../components/ui/ImageUploader';
 import { 
   User as UserIcon, Calendar, MapPin, Award, 
   BookOpen, Trophy, Plus, Check, Settings,
@@ -48,6 +49,8 @@ export const Profile: React.FC = () => {
   const [editBio, setEditBio] = useState('');
   const [editCity, setEditCity] = useState('');
   const [editFideId, setEditFideId] = useState('');
+  const [editAvatarUrl, setEditAvatarUrl] = useState('');
+  const [editCoverUrl, setEditCoverUrl] = useState('');
   const [editRapid, setEditRapid] = useState(1200);
   const [editBlitz, setEditBlitz] = useState(1200);
   const [editClassical, setEditClassical] = useState(1200);
@@ -103,6 +106,8 @@ export const Profile: React.FC = () => {
       setEditBio(profile.bio);
       setEditCity(profile.location.city);
       setEditFideId(profile.fideId || '');
+      setEditAvatarUrl(profile.avatarUrl || '');
+      setEditCoverUrl(profile.coverUrl || '');
       setEditRapid(profile.ratings.rapid);
       setEditBlitz(profile.ratings.blitz);
       setEditClassical(profile.ratings.classical);
@@ -188,7 +193,12 @@ export const Profile: React.FC = () => {
         fullName: editFullName,
         bio: editBio,
         fideId: editFideId || '',
-        location: { city: editCity, country: currentUser.location?.country || 'VN' },
+        avatarUrl: editAvatarUrl,
+        coverUrl: editCoverUrl,
+        location: { 
+          city: editCity, 
+          country: currentUser.location?.country || 'VN' 
+        },
         ratings: {
           ...currentUser.ratings,
           rapid: Number(editRapid),
@@ -642,6 +652,10 @@ export const Profile: React.FC = () => {
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} title="Chỉnh sửa Hồ sơ cờ vua">
         <form onSubmit={handleEditProfileSubmit} className="space-y-4">
           <Input label="Họ và Tên" type="text" value={editFullName} onChange={(e) => setEditFullName(e.target.value)} required />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ImageUploader label="Ảnh đại diện Avatar (Cloudinary)" value={editAvatarUrl} onChange={setEditAvatarUrl} />
+            <ImageUploader label="Ảnh bìa Profile (Cloudinary)" value={editCoverUrl} onChange={setEditCoverUrl} />
+          </div>
           <Input label="Giới thiệu bản thân" isTextArea value={editBio} onChange={(e) => setEditBio(e.target.value)} />
           <Input label="Thành phố" type="text" value={editCity} onChange={(e) => setEditCity(e.target.value)} />
           <Input label="FIDE ID" type="text" value={editFideId} onChange={(e) => setEditFideId(e.target.value)} placeholder="Ví dụ: 12401137" />
@@ -758,13 +772,7 @@ export const Profile: React.FC = () => {
                 </div>
               </div>
 
-              <Input 
-                label="Đường dẫn Ảnh minh chứng (huy chương, chứng chỉ, Elo,... nếu có)" 
-                type="text" 
-                value={requestProofUrl} 
-                onChange={(e) => setRequestProofUrl(e.target.value)} 
-                placeholder="Ví dụ: https://imgur.com/chung-chi.jpg" 
-              />
+              <ImageUploader label="Ảnh minh chứng / Bằng cấp HLV (Cloudinary)" value={requestProofUrl} onChange={setRequestProofUrl} placeholder="Tải ảnh bằng cấp hoặc dán link URL..." />
             </div>
           )}
 

@@ -10,6 +10,7 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import ChessboardWrapper from '../components/chess/ChessboardWrapper';
+import ImageUploader from '../components/ui/ImageUploader';
 import { 
   Heart, MessageSquare, Trash2, Send, 
   MapPin, PlusCircle, AlertCircle, PlayCircle 
@@ -247,12 +248,11 @@ export const Community: React.FC = () => {
               required
             />
 
-            <Input
-              label="URL Ảnh / Média (Tuỳ chọn)"
-              type="text"
-              placeholder="https://images.unsplash.com/..."
+            <ImageUploader
+              label="Ảnh đính kèm bài viết (Tải lên Cloudinary)"
               value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
+              onChange={setImageUrl}
+              placeholder="Nhập hoặc dán URL ảnh trực tiếp..."
             />
 
             {/* Chess related boards metadata input */}
