@@ -264,7 +264,13 @@ export const seedClubs: Club[] = [
     foundedAt: '2015',
     creatorId: 'organizer_hanoi',
     membersCount: 240,
+    members: [
+      { userId: 'organizer_hanoi', role: 'president', status: 'approved', joinedAt: daysAgo(300) },
+      { userId: 'player_1', role: 'vice_president', status: 'approved', joinedAt: daysAgo(200) },
+      { userId: 'player_2', role: 'member', status: 'approved', joinedAt: daysAgo(100) }
+    ],
     socialLinks: { facebook: 'https://facebook.com/hanoichess', website: 'https://hanoichess.org.vn' },
+    status: 'approved',
     createdAt: daysAgo(300)
   },
   {
@@ -277,6 +283,10 @@ export const seedClubs: Club[] = [
     foundedAt: '2018',
     creatorId: 'club_admin_saigon',
     membersCount: 185,
+    members: [
+      { userId: 'club_admin_saigon', role: 'president', status: 'approved', joinedAt: daysAgo(250) },
+      { userId: 'coach_1', role: 'vice_president', status: 'approved', joinedAt: daysAgo(150) }
+    ],
     socialLinks: { facebook: 'https://facebook.com/saigonchessstars' },
     status: 'approved',
     createdAt: daysAgo(250)
@@ -291,7 +301,12 @@ export const seedClubs: Club[] = [
     foundedAt: '2010',
     creatorId: 'player_1',
     membersCount: 120,
+    members: [
+      { userId: 'player_1', role: 'president', status: 'approved', joinedAt: daysAgo(400) },
+      { userId: 'player_3', role: 'member', status: 'approved', joinedAt: daysAgo(200) }
+    ],
     socialLinks: { facebook: 'https://facebook.com/hustchessclub', discord: 'https://discord.gg/hustchess' },
+    status: 'approved',
     createdAt: daysAgo(400)
   },
   {

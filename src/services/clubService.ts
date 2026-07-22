@@ -4,7 +4,7 @@ import {
 } from 'firebase/firestore';
 import { db, isFirebaseMode } from './firebase';
 import { MockDB } from './mockDb';
-import type { Club, ClubMember, User, ClubType, ClubSocialLinks, ClubMemberRole } from '../types';
+import type { Club, ClubMember, User, ClubType, ClubSocialLinks, ClubMemberRole, ClubEmbeddedMember } from '../types';
 import { userService } from './userService';
 import { notificationService } from './notificationService';
 
@@ -82,6 +82,12 @@ class ClubService {
       foundedAt: new Date().getFullYear().toString(),
       creatorId,
       membersCount: 1,
+      members: [{
+        userId: creatorId,
+        role: 'president',
+        status: 'approved',
+        joinedAt: new Date().toISOString()
+      }],
       socialLinks,
       status: 'pending',
       createdAt: new Date().toISOString()
@@ -136,14 +142,23 @@ class ClubService {
       await setDoc(doc(db, 'clubMembers', memberId), newMember);
     } else {
       const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS');
-      
-      // Check if already in club
       if (members.some(m => m.clubId === clubId && m.userId === userId)) {
         throw new Error('Bạn đã nộp đơn hoặc đã gia nhập câu lạc bộ này.');
       }
-
       members.push(newMember);
       MockDB.saveCollection('CLUB_MEMBERS', members);
+    }
+
+    // Update embedded members array inside the Club document
+    const embeddedMember: ClubEmbeddedMember = {
+      userId,
+      role: 'member',
+      status: 'pending',
+      joinedAt: new Date().toISOString()
+    };
+    const currentMembers = club.members || [];
+    if (!currentMembers.some(m => m.userId === userId)) {
+      await this.updateClub(clubId, { members: [...currentMembers, embeddedMember] });
     }
 
     // Notify Club Creator
@@ -187,6 +202,24 @@ class ClubService {
       }
     }
 
+    // Update embedded members array inside Club document
+    const currentMembers = club.members || [];
+    let found = false;
+    const updatedMembers = currentMembers.map(m => {
+      if (m.userId === userId) {
+        found = true;
+        return { ...m, status: 'approved' as const };
+      }
+      return m;
+    });
+    if (!found) {
+      updatedMembers.push({ userId, role: 'member', status: 'approved', joinedAt: new Date().toISOString() });
+    }
+    await this.updateClub(clubId, { 
+      members: updatedMembers, 
+      membersCount: Math.max(1, (club.membersCount || 0) + 1) 
+    });
+
     // Notify member
     await notificationService.createNotification({
       recipientId: userId,
@@ -223,6 +256,16 @@ class ClubService {
           }
         }
       }
+    }
+
+    // Update embedded members array inside Club document
+    const club = await this.getClub(clubId);
+    if (club && club.members) {
+      const updatedMembers = club.members.filter(m => m.userId !== userId);
+      await this.updateClub(clubId, { 
+        members: updatedMembers,
+        membersCount: Math.max(1, (club.membersCount || 1) - 1)
+      });
     }
   }
 
@@ -305,6 +348,21 @@ class ClubService {
         MockDB.saveCollection('CLUB_MEMBERS', members);
       }
     }
+
+    // Update embedded members array inside Club document
+    const currentMembers = club.members || [];
+    let found = false;
+    const updatedMembers = currentMembers.map(m => {
+      if (m.userId === userId) {
+        found = true;
+        return { ...m, role: newRole, status: 'approved' as const };
+      }
+      return m;
+    });
+    if (!found) {
+      updatedMembers.push({ userId, role: newRole, status: 'approved', joinedAt: new Date().toISOString() });
+    }
+    await this.updateClub(clubId, { members: updatedMembers });
 
     // Notify member of role assignment
     await notificationService.createNotification({

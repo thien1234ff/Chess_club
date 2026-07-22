@@ -104,6 +104,13 @@ export interface ClubSocialLinks {
   discord?: string;
 }
 
+export interface ClubEmbeddedMember {
+  userId: string;
+  role: ClubMemberRole;
+  status: 'pending' | 'approved';
+  joinedAt: string;
+}
+
 export interface Club {
   id: string;
   name: string;
@@ -117,6 +124,7 @@ export interface Club {
   foundedAt: string; // ISO date string or year
   creatorId: string;
   membersCount: number;
+  members?: ClubEmbeddedMember[];
   socialLinks: ClubSocialLinks;
   status?: 'pending' | 'approved' | 'rejected';
   createdAt: string; // ISO date string
