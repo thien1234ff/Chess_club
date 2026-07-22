@@ -123,7 +123,7 @@ export const Profile: React.FC = () => {
       await loadTabContents(profile.uid, currentTab);
     } catch (err) {
       console.error(err);
-      addToast('Failed to load user profile.', 'error');
+      addToast('Không thể tải thông tin cá nhân.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +156,7 @@ export const Profile: React.FC = () => {
 
   const handleFollowToggle = async () => {
     if (!currentUser) {
-      addToast('Please login to follow players.', 'warning');
+      addToast('Vui lòng đăng nhập để theo dõi các kỳ thủ.', 'warning');
       navigate('/auth');
       return;
     }
@@ -167,15 +167,15 @@ export const Profile: React.FC = () => {
         await userService.unfollowUser(currentUser.uid, userProfile.uid);
         setFollowersCount(prev => Math.max(0, prev - 1));
         setIsFollowing(false);
-        addToast(`Unfollowed ${userProfile.fullName}`, 'info');
+        addToast(`Đã bỏ theo dõi ${userProfile.fullName}`, 'info');
       } else {
         await userService.followUser(currentUser.uid, userProfile.uid);
         setFollowersCount(prev => prev + 1);
         setIsFollowing(true);
-        addToast(`Following ${userProfile.fullName}`, 'success');
+        addToast(`Đã theo dõi ${userProfile.fullName}`, 'success');
       }
     } catch (err) {
-      addToast('Failed to execute follow toggle.', 'error');
+      addToast('Không thể thực hiện thao tác theo dõi.', 'error');
     }
   };
 
@@ -196,12 +196,12 @@ export const Profile: React.FC = () => {
           classical: Number(editClassical)
         }
       });
-      addToast('Profile updated successfully!', 'success');
+      addToast('Đã cập nhật hồ sơ thành công!', 'success');
       setIsEditModalOpen(false);
       await refreshProfile();
       fetchProfileData();
     } catch (err) {
-      addToast('Failed to update profile.', 'error');
+      addToast('Cập nhật thông tin thất bại.', 'error');
     }
   };
 
@@ -250,7 +250,7 @@ export const Profile: React.FC = () => {
     try {
       await notificationService.markAsRead(notifId);
       setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, isRead: true } : n));
-      addToast('Notification marked as read.', 'success');
+      addToast('Đã đánh dấu thông báo là đã đọc.', 'success');
     } catch (err) {
       console.error(err);
     }
@@ -306,7 +306,7 @@ export const Profile: React.FC = () => {
               <span className="text-sm text-neutral-500">@{userProfile.username}</span>
             </div>
 
-            <p className="text-sm text-neutral-300 mb-6">{userProfile.bio || 'No bio yet.'}</p>
+            <p className="text-sm text-neutral-300 mb-6">{userProfile.bio || 'Chưa có giới thiệu.'}</p>
 
             <div className="space-y-3 text-xs text-neutral-400 mb-6">
               <div className="flex items-center gap-2 justify-center lg:justify-start">
@@ -385,11 +385,11 @@ export const Profile: React.FC = () => {
           {/* Tab Selection */}
           <div className="flex border-b border-darkborder mb-6 overflow-x-auto gap-2">
             {[
-              { id: 'overview', label: 'Overview', icon: <Award size={16} /> },
-              { id: 'posts', label: 'Posts', icon: <BookOpen size={16} /> },
-              { id: 'tournaments', label: 'Tournaments', icon: <Trophy size={16} /> },
-              ...(isOwnProfile ? [{ id: 'bookings', label: 'My Bookings', icon: <Calendar size={16} /> }] : []),
-              ...(isOwnProfile ? [{ id: 'notifications', label: 'Notifications', icon: <Inbox size={16} /> }] : [])
+              { id: 'overview', label: 'Tổng quan', icon: <Award size={16} /> },
+              { id: 'posts', label: 'Bài đăng', icon: <BookOpen size={16} /> },
+              { id: 'tournaments', label: 'Giải đấu', icon: <Trophy size={16} /> },
+              ...(isOwnProfile ? [{ id: 'bookings', label: 'Lịch học', icon: <Calendar size={16} /> }] : []),
+              ...(isOwnProfile ? [{ id: 'notifications', label: 'Thông báo', icon: <Inbox size={16} /> }] : [])
             ].map(tab => (
               <button
                 key={tab.id}
@@ -549,7 +549,7 @@ export const Profile: React.FC = () => {
                             size="sm" 
                             onClick={async () => {
                               await bookingService.updateBookingStatus(book.id, 'confirmed');
-                              addToast('Lesson confirmed!', 'success');
+                              addToast('Đã xác nhận buổi học!', 'success');
                               fetchProfileData();
                             }}
                           >
@@ -559,10 +559,10 @@ export const Profile: React.FC = () => {
                             variant="danger" 
                             size="sm" 
                             onClick={async () => {
-                              const reason = prompt('Cancellation reason:');
+                              const reason = prompt('Lý do hủy lịch:');
                               if (reason) {
                                   await bookingService.updateBookingStatus(book.id, 'cancelled', reason);
-                                  addToast('Lesson declined.', 'info');
+                                  addToast('Bắt buộc từ chối buổi học.', 'info');
                                   fetchProfileData();
                               }
                             }}
@@ -577,12 +577,12 @@ export const Profile: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={async () => {
-                            await bookingService.updateBookingStatus(book.id, 'cancelled', 'Cancelled by student');
-                            addToast('Booking cancelled.', 'info');
+                            await bookingService.updateBookingStatus(book.id, 'cancelled', 'Học viên hủy lịch');
+                            addToast('Hủy đặt lịch thành công.', 'info');
                             fetchProfileData();
                           }}
                         >
-                          Cancel
+                          Hủy lịch
                         </Button>
                       )}
                     </div>
@@ -600,7 +600,7 @@ export const Profile: React.FC = () => {
                   <button
                     onClick={async () => {
                       await notificationService.markAllAsRead(currentUser!.uid);
-                      addToast('All notifications marked as read.', 'success');
+                      addToast('Đã đánh dấu tất cả thông báo là đã đọc.', 'success');
                       fetchProfileData();
                     }}
                     className="text-xs font-bold text-gold hover:underline cursor-pointer"
@@ -715,7 +715,7 @@ export const Profile: React.FC = () => {
                   >
                     <option value="online">Online (Trực tuyến)</option>
                     <option value="offline">Offline (Trực tiếp)</option>
-                    <option value="both">Cả hai (Online & Offline)</option>
+                    <option value="both">Cả hai (Online &amp; Offline)</option>
                   </select>
                 </div>
               </div>

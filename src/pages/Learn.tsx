@@ -103,17 +103,16 @@ export const Learn: React.FC = () => {
         setSolvedCount(prev => prev + 1);
         setStreak(prev => prev + 1);
         setPuzzleRating(prev => prev + 15);
-        addToast('Correct! Puzzle Solved 🎉', 'success');
+        addToast('Giải đúng! Đã hoàn thành thế cờ 🎉', 'success');
       } else {
         setPuzzleStep(nextStep);
-        addToast('Correct move! Keep going...', 'success');
+        addToast('Nước đi đúng! Tiếp tục nào...', 'success');
       }
     } else {
-      // Failed move
       setIsFailed(true);
       setStreak(0);
       setPuzzleRating(prev => Math.max(800, prev - 10));
-      addToast('Wrong move. Try resetting the board!', 'error');
+      addToast('Nước đi sai. Thử đặt lại bàn!', 'error');
     }
   };
 
@@ -128,29 +127,29 @@ export const Learn: React.FC = () => {
   const courses = [
     {
       id: 'course_1',
-      title: 'Chess Rules & Basic Tactics',
-      description: 'Master the chess coordinate notations, piece values, checkmate patterns, and simple opening guidelines.',
+      title: 'Luật cờ & Chiến thuật cơ bản',
+      description: 'Nắm vững ký hiệu tọa độ cờ vua, giá trị quân cờ, các mẫu chiếu bít và hướng dẫn khai cuộc đơn giản.',
       lessonsCount: 6,
       progress: 100,
-      difficulty: 'Beginner',
+      difficulty: 'Cơ bản',
       completed: true
     },
     {
       id: 'course_2',
-      title: 'Pawn Structure & Positional Play',
-      description: 'Introduction to center control, open files, back rank weaknesses, and planning minor piece trades.',
+      title: 'Cấu trúc Tốt & Đấu pháp Vị trí',
+      description: 'Giới thiệu kiểm soát trung tâm, cột mở, điểm yếu hàng sau và kế hoạch đổi quân nhữ.',
       lessonsCount: 8,
       progress: 50,
-      difficulty: 'Intermediate',
+      difficulty: 'Trung cấp',
       completed: false
     },
     {
       id: 'course_3',
-      title: 'Advanced Opening Repertoires',
-      description: 'Understanding Sicilian Defense theory, Queens Gambit details, and Caro-Kann lines.',
+      title: 'Hệ thống Khai cuộc Nâng cao',
+      description: 'Hiểu lý thuyết Phòng thủ Sicily, chi tiết Gambit Hậu và các biến thể Caro-Kann.',
       lessonsCount: 10,
       progress: 0,
-      difficulty: 'Advanced',
+      difficulty: 'Nâng cao',
       completed: false
     }
   ];
@@ -168,7 +167,7 @@ export const Learn: React.FC = () => {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
         <Button variant="outline" size="sm" onClick={() => navigate('/learn?tab=puzzles')} className="mb-6">
-          ← Back to Puzzles Feed
+          ← Quay lại danh sách Thế cờ
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -193,30 +192,30 @@ export const Learn: React.FC = () => {
           {/* Details & Controls Area */}
           <div className="lg:col-span-1">
             <Card className="p-6 border border-darkborder space-y-6 bg-darkcard h-full">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 font-display">Tactic Checker</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 font-display">Kiểm tra Chiến thuật</h3>
               
               <div className="space-y-4">
                 <div className="p-4 rounded-xl text-center border bg-charcoal/50 border-darkborder">
                   {isSolved ? (
                     <div className="space-y-2">
-                      <span className="text-emerald-400 font-bold block text-sm">Success!</span>
-                      <p className="text-xs text-neutral-400">Tactical pattern successfully recognized. Ratings +15 points.</p>
+                      <span className="text-emerald-400 font-bold block text-sm">Thành công!</span>
+                      <p className="text-xs text-neutral-400">Bạn đã nhận ra mẫu chiến thuật. Điểm số +15.</p>
                       <Button variant="gold" size="sm" onClick={() => navigate('/learn?tab=puzzles')}>
-                        Next Exercise
+                        Bài tiếp theo
                       </Button>
                     </div>
                   ) : isFailed ? (
                     <div className="space-y-3">
-                      <span className="text-red-400 font-bold block text-sm">Incorrect Move</span>
-                      <p className="text-xs text-neutral-400">That was not the best move in this position.</p>
+                      <span className="text-red-400 font-bold block text-sm">Nước đi Sai</span>
+                      <p className="text-xs text-neutral-400">Đó chưa phải nước tốt nhất trong thế cờ này.</p>
                       <Button variant="outline" size="sm" onClick={handleResetPuzzle} leftIcon={<RotateCcw size={12} />}>
-                        Retry Board
+                        Đặt lại bàn
                       </Button>
                     </div>
                   ) : (
                     <div className="space-y-1">
-                      <span className="text-amber-400 font-bold block text-sm">Your Turn to Move</span>
-                      <p className="text-xs text-neutral-400">Find the winning continuation on the board (White to move).</p>
+                      <span className="text-amber-400 font-bold block text-sm">Lượt bạn đi</span>
+                      <p className="text-xs text-neutral-400">Tìm nước tiếp tục thắng lợi trên bàn (Trắng đi).</p>
                     </div>
                   )}
                 </div>
@@ -226,11 +225,11 @@ export const Learn: React.FC = () => {
                   <div className="border-t border-darkborder/50 pt-4">
                     {showHint ? (
                       <div className="p-3 bg-neutral-900 border border-darkborder rounded-lg text-xs italic text-neutral-400 leading-relaxed">
-                        Hint: {activePuzzle.solution[0]?.substring(0, 2) === 'q' ? 'A powerful Queen movement' : 'Check the opponent King coordinates!'}
+                        Gợi ý: {activePuzzle.solution[0]?.substring(0, 2) === 'q' ? 'Một nước Hậu mạnh mẽ' : 'Kiểm tra tọa độ Vua đối phương!'}
                       </div>
                     ) : (
                       <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => setShowHint(true)}>
-                        Show Hint
+                        Xem gợi ý
                       </Button>
                     )}
                   </div>
@@ -247,17 +246,17 @@ export const Learn: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold font-display text-white tracking-wide">Chess Academy & Puzzles</h1>
-        <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Solve interactive tactics and complete training courses</p>
+        <h1 className="text-2xl font-bold font-display text-white tracking-wide">Học viện Cờ vua &amp; Thế cờ</h1>
+        <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Giải thế cờ tương tác và hoàn thành các khóa học</p>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-darkborder mb-8 gap-2">
         <button onClick={() => setSearchParams({ tab: 'courses' })} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer transition-colors ${activeTab === 'courses' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
-          Study Courses
+          Khóa học Học tập
         </button>
         <button onClick={() => setSearchParams({ tab: 'puzzles' })} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer transition-colors ${activeTab === 'puzzles' ? 'border-gold text-gold font-bold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
-          Tactical Puzzles
+          Thế cờ Chiến thuật
         </button>
       </div>
 
@@ -272,7 +271,7 @@ export const Learn: React.FC = () => {
                     <Badge variant={course.difficulty === 'Beginner' ? 'success' : course.difficulty === 'Intermediate' ? 'warning' : 'danger'}>
                       {course.difficulty}
                     </Badge>
-                    <span className="text-[10px] text-neutral-500 font-bold uppercase">{course.lessonsCount} lessons</span>
+                    <span className="text-[10px] text-neutral-500 font-bold uppercase">{course.lessonsCount} bài học</span>
                   </div>
                   <h3 className="font-bold text-white text-base font-display line-clamp-1 mb-2">{course.title}</h3>
                   <p className="text-xs text-neutral-400 line-clamp-3 mb-6">{course.description}</p>
@@ -281,7 +280,7 @@ export const Learn: React.FC = () => {
                 {/* Progress bar */}
                 <div className="space-y-2 border-t border-darkborder/50 pt-4 mt-auto">
                   <div className="flex justify-between text-[10px] text-neutral-500 font-bold uppercase">
-                    <span>Progress</span>
+                    <span>Tiến độ</span>
                     <span>{course.progress}%</span>
                   </div>
                   <div className="h-2 bg-darkborder rounded-full overflow-hidden">
@@ -289,8 +288,8 @@ export const Learn: React.FC = () => {
                   </div>
                 </div>
 
-                <Button variant="secondary" className="w-full text-xs font-semibold mt-6" onClick={() => addToast('Course module in development.', 'info')}>
-                  Start Learning
+                <Button variant="secondary" className="w-full text-xs font-semibold mt-6" onClick={() => addToast('Module khóa học đang phát triển.', 'info')}>
+                  Bắt đầu Học
                 </Button>
               </div>
             </Card>
@@ -304,23 +303,23 @@ export const Learn: React.FC = () => {
           {/* Left stats card */}
           <div className="lg:col-span-1 space-y-4">
             <Card className="p-5 text-center">
-              <h3 className="text-xs font-bold uppercase text-neutral-500 mb-4">Puzzle Profile</h3>
+              <h3 className="text-xs font-bold uppercase text-neutral-500 mb-4">Hồ sơ Thế cờ</h3>
               <div className="space-y-4">
                 <div>
                   <span className="text-3xl font-extrabold text-gold block font-display">{puzzleRating}</span>
-                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold">Your Puzzle Elo</span>
+                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold">Elo Thế cờ của bạn</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 border-t border-darkborder/50 pt-4">
                   <div>
                     <span className="text-base font-bold text-white block">{solvedCount}</span>
-                    <span className="text-[9px] text-neutral-500 uppercase tracking-wider">Solved</span>
+                    <span className="text-[9px] text-neutral-500 uppercase tracking-wider">Đã giải</span>
                   </div>
                   <div>
                     <span className="text-base font-bold text-amber-500 block flex justify-center items-center gap-0.5">
                       <Zap size={12} className="fill-current" />
                       <span>{streak}</span>
                     </span>
-                    <span className="text-[9px] text-neutral-500 uppercase tracking-wider">Streak</span>
+                    <span className="text-[9px] text-neutral-500 uppercase tracking-wider">Chuỗi</span>
                   </div>
                 </div>
               </div>
@@ -337,10 +336,10 @@ export const Learn: React.FC = () => {
                     <span className="text-[10px] text-neutral-500 mt-1 block uppercase tracking-wider font-semibold">
                       ⭐ Rating: {puzzle.rating} | {puzzle.category.replace('_', ' ')}
                     </span>
-                    <span className="text-[10px] text-neutral-600 block mt-0.5">Solves: {puzzle.solves} / {puzzle.attempts}</span>
+                    <span className="text-[10px] text-neutral-600 block mt-0.5">Giải: {puzzle.solves} / {puzzle.attempts}</span>
                   </div>
                   <Button variant="outline" size="sm" onClick={() => setSearchParams({ puzzleId: puzzle.id })}>
-                    Solve
+                    Giải
                   </Button>
                 </Card>
               ))}

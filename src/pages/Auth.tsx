@@ -40,22 +40,22 @@ export const Auth: React.FC = () => {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-    if (!email) newErrors.email = 'Email is required.';
-    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email is invalid.';
+    if (!email) newErrors.email = 'Email là bắt buộc.';
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = 'Email không hợp lệ.';
 
-    if (!password) newErrors.password = 'Password is required.';
-    else if (password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
+    if (!password) newErrors.password = 'Mật khẩu là bắt buộc.';
+    else if (password.length < 6) newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự.';
 
     if (isRegister) {
-      if (!fullName) newErrors.fullName = 'Full name is required.';
-      if (!username) newErrors.username = 'Username is required.';
-      else if (username.length < 3) newErrors.username = 'Username must be at least 3 characters.';
+      if (!fullName) newErrors.fullName = 'Họ và tên là bắt buộc.';
+      if (!username) newErrors.username = 'Tên đăng nhập là bắt buộc.';
+      else if (username.length < 3) newErrors.username = 'Tên đăng nhập phải có ít nhất 3 ký tự.';
       else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        newErrors.username = 'Username can only contain letters, numbers, and underscores.';
+        newErrors.username = 'Tên đăng nhập chỉ chứa chữ cái, chữ số và dấu gạch dưới.';
       }
       
       if (password !== confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match.';
+        newErrors.confirmPassword = 'Mật khẩu xác nhận không khớp.';
       }
     }
 

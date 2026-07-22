@@ -10,7 +10,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
-import { Trophy, Users, Star, ArrowRight, Sparkles } from 'lucide-react';
+import { Trophy, Users, Star, ArrowRight, Sparkles, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import * as seeder from '../utils/seeder';
 
 export const Home: React.FC = () => {
@@ -24,8 +24,12 @@ export const Home: React.FC = () => {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [coaches, setCoaches] = useState<{ coach: Coach; user: User }[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
+  const [allClubs, setAllClubs] = useState<Club[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Hero Slider State
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
   // Statistics
   const stats = {
@@ -47,6 +51,7 @@ export const Home: React.FC = () => {
         // Populate lists
         setTournaments(tourList.filter(t => t.status === 'upcoming').slice(0, 3));
         setCoaches(coachList.slice(0, 3));
+        setAllClubs(clubList);
         setClubs(clubList.slice(0, 3));
         setPosts(postList.slice(0, 3));
       } catch (err) {
@@ -59,6 +64,16 @@ export const Home: React.FC = () => {
   }, []);
 
   const hasSearch = searchQuery.trim().length > 0;
+  const sliderClubs = allClubs.length > 0 ? allClubs.slice(0, 5) : seeder.seedClubs.slice(0, 4);
+
+  // Auto slide interval for Hero Carousel
+  useEffect(() => {
+    if (hasSearch || sliderClubs.length === 0) return;
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % sliderClubs.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [hasSearch, sliderClubs.length]);
 
   // Filter lists based on Search Query
   const filteredTours = tournaments.filter(t => 
@@ -83,6 +98,8 @@ export const Home: React.FC = () => {
       </div>
     );
   }
+
+  const activeClub = sliderClubs[currentSlideIndex] || sliderClubs[0];
 
   return (
     <div className="bg-charcoal min-h-screen text-left">
@@ -111,37 +128,131 @@ export const Home: React.FC = () => {
             </div>
           </div>
           
-          {/* Hero Chess Art (Interactive/styled) */}
+          {/* Hero Interactive Club Carousel Slider */}
           <div className="lg:col-span-5 relative flex justify-center">
-            <div className="absolute inset-0 bg-gold-muted blur-3xl opacity-20 rounded-full" />
-            <div className="relative border-4 border-darkborder bg-darkcard rounded-3xl p-8 shadow-2xl flex flex-col items-center gap-6 max-w-sm w-full">
-              <div className="text-7xl">👑</div>
-              <div className="text-center">
-                <h3 className="font-display font-bold text-white tracking-wide">Giao diện Cờ vua ChessHub</h3>
-                <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Sẵn sàng thi đấu</p>
+            <div className="absolute inset-0 bg-gold-muted blur-3xl opacity-25 rounded-full" />
+            
+            {sliderClubs.length > 0 && activeClub && (
+              <div className="relative border-2 border-darkborder/90 hover:border-gold/40 bg-darkcard/90 backdrop-blur-xl rounded-3xl p-6 shadow-2xl flex flex-col justify-between max-w-md w-full h-[430px] overflow-hidden group transition-all duration-300">
+                
+                {/* Background Image Carousel with Overlay */}
+                {sliderClubs.map((club, idx) => (
+                  <div
+                    key={club.id}
+                    className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                      idx === currentSlideIndex ? 'opacity-100 z-0' : 'opacity-0 z-0 pointer-events-none'
+                    }`}
+                  >
+                    <img
+                      src={club.coverUrl || seeder.DEFAULT_COVERS[0]}
+                      alt={club.name}
+                      className="w-full h-full object-cover opacity-35 scale-105 group-hover:scale-100 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-darkcard via-darkcard/85 to-charcoal/40" />
+                  </div>
+                ))}
+
+                {/* Header Overlay info */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="inline-flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-gold/30 px-3 py-1 rounded-full text-[11px] font-bold text-gold uppercase tracking-wider shadow-md">
+                    <Sparkles size={12} className="animate-spin text-gold" />
+                    <span>CLB Nổi Bật</span>
+                  </div>
+                  
+                  {/* Slide Counter Indicator */}
+                  <span className="text-xs font-mono font-bold text-neutral-400 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-md border border-darkborder">
+                    <span className="text-gold">{String(currentSlideIndex + 1).padStart(2, '0')}</span> / {String(sliderClubs.length).padStart(2, '0')}
+                  </span>
+                </div>
+
+                {/* Slide Main Content */}
+                <div className="relative z-10 my-auto pt-4 space-y-4">
+                  {/* Logo and Badges */}
+                  <div className="flex items-center gap-3">
+                    <div className="h-14 w-14 rounded-2xl overflow-hidden bg-darkborder border-2 border-gold/40 shrink-0 shadow-lg">
+                      <img
+                        src={activeClub.logoUrl || seeder.DEFAULT_AVATARS[0]}
+                        alt={activeClub.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="gold">
+                          {activeClub.location.type === 'university' ? 'CLB Sinh viên' : 'CLB Cờ Vua'}
+                        </Badge>
+                      </div>
+                      <h3 className="font-display font-bold text-white text-lg tracking-wide line-clamp-1 mt-1">
+                        {activeClub.name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-neutral-300 line-clamp-3 leading-relaxed bg-black/40 p-3 rounded-xl border border-darkborder/50 backdrop-blur-sm">
+                    {activeClub.description}
+                  </p>
+
+                  {/* Club Details stats row */}
+                  <div className="flex items-center justify-between text-xs text-neutral-400 border-t border-darkborder/60 pt-3">
+                    <span className="flex items-center gap-1 font-semibold text-neutral-300">
+                      <Users size={14} className="text-gold" />
+                      {activeClub.membersCount} Thành viên
+                    </span>
+                    <span className="flex items-center gap-1 font-semibold text-neutral-300">
+                      <MapPin size={14} className="text-sky-400" />
+                      {activeClub.location.city}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Controls & Call to action */}
+                <div className="relative z-10 pt-2 space-y-3">
+                  <Button
+                    variant="gold"
+                    className="w-full text-xs font-bold tracking-wide shadow-lg flex items-center justify-center gap-2"
+                    onClick={() => navigate(`/clubs/${activeClub.id}`)}
+                  >
+                    <span>Khám phá Câu lạc bộ</span>
+                    <ArrowRight size={14} />
+                  </Button>
+
+                  {/* Nav Arrows & Indicators */}
+                  <div className="flex items-center justify-between pt-1">
+                    {/* Slider Dots */}
+                    <div className="flex items-center gap-1.5">
+                      {sliderClubs.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setCurrentSlideIndex(idx)}
+                          className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                            idx === currentSlideIndex ? 'w-6 bg-gold' : 'w-1.5 bg-neutral-600 hover:bg-neutral-400'
+                          }`}
+                          aria-label={`Slide ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Prev / Next Buttons */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setCurrentSlideIndex((prev) => (prev === 0 ? sliderClubs.length - 1 : prev - 1))}
+                        className="p-1.5 rounded-lg bg-black/50 hover:bg-gold hover:text-charcoal text-neutral-300 border border-darkborder transition-colors cursor-pointer"
+                        title="Slide trước"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % sliderClubs.length)}
+                        className="p-1.5 rounded-lg bg-black/50 hover:bg-gold hover:text-charcoal text-neutral-300 border border-darkborder transition-colors cursor-pointer"
+                        title="Slide sau"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-4 gap-2 w-full text-center py-2 border-t border-darkborder/50">
-                <div>
-                  <span className="text-xs text-neutral-500 block uppercase tracking-wider font-semibold">Rapid</span>
-                  <span className="font-bold text-sky-400 font-display">1200</span>
-                </div>
-                <div>
-                  <span className="text-xs text-neutral-500 block uppercase tracking-wider font-semibold">Blitz</span>
-                  <span className="font-bold text-amber-400 font-display">1200</span>
-                </div>
-                <div>
-                  <span className="text-xs text-neutral-500 block uppercase tracking-wider font-semibold">Puzzles</span>
-                  <span className="font-bold text-emerald-400 font-display">1200</span>
-                </div>
-                <div>
-                  <span className="text-xs text-neutral-500 block uppercase tracking-wider font-semibold">Games</span>
-                  <span className="font-bold text-white font-display">0</span>
-                </div>
-              </div>
-              <Button variant="secondary" className="w-full text-xs font-semibold" onClick={() => navigate('/learn?tab=puzzles')}>
-                Giải thế cờ hàng ngày
-              </Button>
-            </div>
+            )}
           </div>
         </div>
       )}
@@ -269,7 +380,7 @@ export const Home: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Featured Tournaments</h2>
+                <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Giải đấu Nổi bật</h2>
                 <p className="text-xs text-neutral-500 mt-1">Thử thách bản thân trong các giải đấu hệ Thụy Sĩ sắp tới</p>
               </div>
               <Link to="/tournaments" className="text-xs font-bold text-gold hover:underline flex items-center gap-1">
@@ -338,7 +449,7 @@ export const Home: React.FC = () => {
                       <span className="text-xs text-neutral-500 mt-2 block">⭐ {coach.rating} ({coach.reviewsCount} đánh giá) | {coach.hourlyRate.toLocaleString()} VND/giờ</span>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => navigate(`/coaches/${coach.uid}`)}>
-                      Profile
+                      Hồ sơ
                     </Button>
                   </Card>
                 ))}
@@ -349,7 +460,7 @@ export const Home: React.FC = () => {
             <div>
               <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Popular Chess Clubs</h2>
+                  <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Câu lạc bộ Phổ biến</h2>
                   <p className="text-xs text-neutral-500 mt-1">Gia nhập các cộng đồng cờ vua sinh viên và tư nhân</p>
                 </div>
                 <Link to="/clubs" className="text-xs font-bold text-gold hover:underline">Xem tất cả</Link>
@@ -379,7 +490,7 @@ export const Home: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 border-t border-darkborder">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Community Feed Preview</h2>
+                <h2 className="text-xl font-bold font-display text-white uppercase tracking-wider text-neutral-400">Bảng tin Cộng đồng</h2>
                 <p className="text-xs text-neutral-500 mt-1">Xem các kì thủ và huấn luyện viên đang chia sẻ những gì</p>
               </div>
               <Link to="/community" className="text-xs font-bold text-gold hover:underline flex items-center gap-1">

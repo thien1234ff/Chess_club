@@ -24,7 +24,7 @@ export const Messaging: React.FC = () => {
   const [inputText, setInputText] = useState('');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareFen, setShareFen] = useState('');
-  const [shareText, setShareText] = useState('Check out this interesting chess position!');
+  const [shareText, setShareText] = useState('Xem thế cờ đậc biệt này nào!');
 
   const loadConversations = async () => {
     if (!currentUser) return;
@@ -85,7 +85,7 @@ export const Messaging: React.FC = () => {
       setMessages(list);
       loadConversations();
     } catch (err) {
-      addToast('Failed to send message.', 'error');
+      addToast('Gửi tin nhắn thất bại.', 'error');
     }
   };
 
@@ -104,15 +104,15 @@ export const Messaging: React.FC = () => {
 
       setIsShareModalOpen(false);
       setShareFen('');
-      setShareText('Check out this interesting chess position!');
+      setShareText('Xem thế cờ đậc biệt này nào!');
       
       // Reload
       const list = await messagingService.getMessages(activeConvoId);
       setMessages(list);
       loadConversations();
-      addToast('Chess position shared in chat.', 'success');
+      addToast('Đã chia sẻ thế cờ trong chat.', 'success');
     } catch (err) {
-      addToast('Failed to share position.', 'error');
+      addToast('Chia sẻ thế cờ thất bại.', 'error');
     }
   };
 
@@ -122,7 +122,7 @@ export const Messaging: React.FC = () => {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 text-center">
         <Info size={36} className="text-neutral-500" />
-        <p className="text-sm text-neutral-400">Please log in to access direct messages.</p>
+        <p className="text-sm text-neutral-400">Vui lòng đăng nhập để truy cập tin nhắn trực tiếp.</p>
       </div>
     );
   }
@@ -135,7 +135,7 @@ export const Messaging: React.FC = () => {
           <div className="p-4 border-b border-darkborder">
             <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-2">
               <MessageSquare size={16} className="text-gold" />
-              <span>Direct Chats</span>
+              <span>Tin nhắn Trực tiếp</span>
             </h3>
           </div>
 
@@ -165,7 +165,7 @@ export const Messaging: React.FC = () => {
                       )}
                     </div>
                     <p className="text-xs text-neutral-400 truncate pr-6">
-                      {conversation.lastMessage ? conversation.lastMessage.text : 'Start chatting...'}
+                      {conversation.lastMessage ? conversation.lastMessage.text : 'Bắt đầu trò chuyện...'}
                     </p>
                   </div>
                   {unreads > 0 && (
@@ -178,7 +178,7 @@ export const Messaging: React.FC = () => {
             })}
 
             {convos.length === 0 && (
-              <div className="text-center py-12 text-neutral-500 text-xs italic">No active conversations found.</div>
+              <div className="text-center py-12 text-neutral-500 text-xs italic">Không tìm thấy cuộc trò chuyện nào.</div>
             )}
           </div>
         </div>
@@ -206,7 +206,7 @@ export const Messaging: React.FC = () => {
                   onClick={() => setIsShareModalOpen(true)}
                 >
                   <Share2 size={12} />
-                  <span>Share Board</span>
+                  <span>Chia sẻ Bàn cờ</span>
                 </Button>
               </div>
 
@@ -250,7 +250,7 @@ export const Messaging: React.FC = () => {
               <form onSubmit={handleSendMessage} className="p-4 bg-darkcard border-t border-darkborder flex gap-2">
                 <input
                   type="text"
-                  placeholder="Type your message..."
+                  placeholder="Nhập tin nhắn của bạn..."
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   className="bg-charcoal border border-darkborder focus:border-gold rounded-lg px-3 py-2 text-xs text-ivory placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-gold flex-grow"
@@ -263,7 +263,7 @@ export const Messaging: React.FC = () => {
           ) : (
             <div className="flex flex-col items-center justify-center flex-grow text-center text-neutral-500 gap-3">
               <MessageSquare size={36} />
-              <p className="text-sm">Select a conversation thread on the left side to start chatting.</p>
+              <p className="text-sm">Chọn một cuộc trò chuyện ở bên trái để bắt đầu nhắn tin.</p>
             </div>
           )}
         </div>
@@ -273,11 +273,11 @@ export const Messaging: React.FC = () => {
       <Modal 
         isOpen={isShareModalOpen} 
         onClose={() => setIsShareModalOpen(false)} 
-        title="Share Chess Position Setup"
+        title="Chia sẻ Thế cờ"
       >
         <form onSubmit={handleShareChessPosition} className="space-y-4 text-left">
           <Input
-            label="FEN Position String"
+            label="Chuỗi vị trí FEN"
             type="text"
             placeholder="r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4"
             value={shareFen}
@@ -287,21 +287,21 @@ export const Messaging: React.FC = () => {
 
           {shareFen && (
             <div className="flex flex-col items-center py-2 bg-charcoal/50 border border-darkborder rounded-lg max-w-xs mx-auto">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold mb-2">Position Preview</span>
+              <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold mb-2">Xem trước vị trí</span>
               <ChessboardWrapper fen={shareFen} playable={false} width={180} />
             </div>
           )}
 
           <Input
-            label="Optional Description Message"
+            label="Mô tả (Tuỳ chọn)"
             type="text"
             value={shareText}
             onChange={(e) => setShareText(e.target.value)}
           />
 
           <div className="flex justify-end gap-2 pt-4 border-t border-darkborder">
-            <Button variant="outline" type="button" onClick={() => setIsShareModalOpen(false)}>Cancel</Button>
-            <Button variant="gold" type="submit">Share to Chat</Button>
+            <Button variant="outline" type="button" onClick={() => setIsShareModalOpen(false)}>Hủy</Button>
+            <Button variant="gold" type="submit">Chia sẻ lên Chat</Button>
           </div>
         </form>
       </Modal>

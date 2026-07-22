@@ -56,7 +56,7 @@ export const Community: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      addToast('Failed to load community feed.', 'error');
+      addToast('Không thể tải bảng tin cộng đồng.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -69,12 +69,12 @@ export const Community: React.FC = () => {
   const handlePublishPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      addToast('Please login to create a post.', 'warning');
+      addToast('Vui lòng đăng nhập để tạo bài viết.', 'warning');
       return;
     }
 
     if (!content.trim()) {
-      addToast('Post content cannot be empty.', 'error');
+      addToast('Nội dung bài viết không được để trống.', 'error');
       return;
     }
 
@@ -87,7 +87,7 @@ export const Community: React.FC = () => {
         if (pgn) extra.pgn = pgn;
       } else if (postType === 'puzzle') {
         if (!fen || !puzzleSolution) {
-          addToast('FEN position and solution are required for puzzles.', 'error');
+          addToast('Vị trí FEN và lời giải là bắt buộc cho thế cờ.', 'error');
           return;
         }
         extra.fen = fen;
@@ -98,7 +98,7 @@ export const Community: React.FC = () => {
       }
 
       await postService.createPost(currentUser.uid, postType, content, extra);
-      addToast('Post published successfully!', 'success');
+      addToast('Đăng bài thành công!', 'success');
       
       // Reset publisher
       setContent('');
@@ -112,13 +112,13 @@ export const Community: React.FC = () => {
       // Reload feed
       loadFeed();
     } catch (err: any) {
-      addToast(err.message || 'Failed to publish post.', 'error');
+      addToast(err.message || 'Đăng bài thất bại.', 'error');
     }
   };
 
   const handleLikeToggle = async (postId: string) => {
     if (!currentUser) {
-      addToast('Please login to engage with posts.', 'warning');
+      addToast('Vui lòng đăng nhập để tương tác với bài viết.', 'warning');
       return;
     }
 
@@ -157,7 +157,7 @@ export const Community: React.FC = () => {
 
   const handleAddComment = async (postId: string) => {
     if (!currentUser) {
-      addToast('Please login to post a comment.', 'warning');
+      addToast('Vui lòng đăng nhập để bình luận.', 'warning');
       return;
     }
     if (!newCommentText.trim()) return;
@@ -170,20 +170,20 @@ export const Community: React.FC = () => {
       }));
       setNewCommentText('');
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, commentsCount: p.commentsCount + 1 } : p));
-      addToast('Comment added.', 'success');
+      addToast('Đã thêm bình luận.', 'success');
     } catch (err) {
-      addToast('Failed to post comment.', 'error');
+      addToast('Đăng bình luận thất bại.', 'error');
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
     try {
       await postService.deletePost(postId);
       setPosts(prev => prev.filter(p => p.id !== postId));
-      addToast('Post deleted.', 'info');
+      addToast('Đã xóa bài viết.', 'info');
     } catch (err) {
-      addToast('Failed to delete post.', 'error');
+      addToast('Xóa bài viết thất bại.', 'error');
     }
   };
 
@@ -197,8 +197,8 @@ export const Community: React.FC = () => {
       {/* Community Headers */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold font-display text-white tracking-wide">Community Feed</h1>
-          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Discuss chess variations, tactics, and openings</p>
+          <h1 className="text-2xl font-bold font-display text-white tracking-wide">Bảng tin Cộng đồng</h1>
+          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Thảo luận cờ vào, chiến thuật và khai cuộc</p>
         </div>
         {currentUser && (
           <Button 
@@ -206,7 +206,7 @@ export const Community: React.FC = () => {
             onClick={() => setIsPublisherOpen(!isPublisherOpen)}
             leftIcon={<PlusCircle size={16} />}
           >
-            {isPublisherOpen ? 'Close Editor' : 'Write Post'}
+            {isPublisherOpen ? 'Đóng trình soạn' : 'Viết bài'}
           </Button>
         )}
       </div>
@@ -218,9 +218,9 @@ export const Community: React.FC = () => {
             {/* Post Format choices */}
             <div className="flex gap-2 border-b border-darkborder pb-3">
               {[
-                { id: 'text', label: 'Standard Text' },
-                { id: 'chess', label: 'Chess Board' },
-                { id: 'puzzle', label: 'Tactical Puzzle' }
+                { id: 'text', label: 'Văn bản thường' },
+                { id: 'chess', label: 'Bàn cờ' },
+                { id: 'puzzle', label: 'Thế cờ Chiến thuật' }
               ].map(opt => (
                 <button
                   key={opt.id}
@@ -238,17 +238,17 @@ export const Community: React.FC = () => {
             </div>
 
             <Input
-              label="Post Body"
+              label="Nội dung bài viết"
               isTextArea
               rows={4}
-              placeholder="What are you analyzing today? Share thoughts, openings, or chess tips..."
+              placeholder="Bạn đang phân tích gì hôm nay? Chia sẻ suy nghĩ, khai cuộc hoặc mẹo cờ vua..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               required
             />
 
             <Input
-              label="Media Image URL (Optional)"
+              label="URL Ảnh / Média (Tuỳ chọn)"
               type="text"
               placeholder="https://images.unsplash.com/..."
               value={imageUrl}
@@ -259,25 +259,25 @@ export const Community: React.FC = () => {
             {(postType === 'chess' || postType === 'puzzle') && (
               <div className="border border-darkborder/50 bg-charcoal p-4 rounded-xl space-y-3">
                 <Input
-                  label="FEN Position String"
+                  label="Chuỗi vị trí FEN"
                   type="text"
                   placeholder="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
                   value={fen}
                   onChange={(e) => setFen(e.target.value)}
-                  helperText="Load custom chess arrangement."
+                  helperText="Tải thế cờ tùy chỉnh."
                 />
                 
                 {/* Live board preview */}
                 {fen && (
                   <div className="flex flex-col items-center py-2 bg-darkcard/50 border border-darkborder rounded-lg max-w-xs mx-auto">
-                    <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold mb-2">Live Board Preview</span>
+                    <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold mb-2">Xem trước bàn cờ</span>
                     <ChessboardWrapper fen={fen} playable={false} width={200} />
                   </div>
                 )}
 
                 {postType === 'chess' && (
                   <Input
-                    label="PGN Game Moves (Optional)"
+                    label="Nước đi PGN (Tuỳ chọn)"
                     isTextArea
                     rows={2}
                     placeholder="1. e4 e5 2. Nf3 Nc6..."
@@ -289,16 +289,16 @@ export const Community: React.FC = () => {
                 {postType === 'puzzle' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
-                      label="Solution (comma separated SAN moves)"
+                      label="Lời giải (các nước SAN cách nhau bằng dấu phẩy)"
                       type="text"
                       placeholder="Qxf7, Qxf7#"
                       value={puzzleSolution}
                       onChange={(e) => setPuzzleSolution(e.target.value)}
                     />
                     <Input
-                      label="Hint"
+                      label="Gợi ý"
                       type="text"
-                      placeholder="Look for the mating queen diagonal"
+                      placeholder="Tìm đường chéo chiếu của Hậu"
                       value={puzzleHint}
                       onChange={(e) => setPuzzleHint(e.target.value)}
                     />
@@ -308,12 +308,8 @@ export const Community: React.FC = () => {
             )}
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" type="button" onClick={() => setIsPublisherOpen(false)}>
-                Cancel
-              </Button>
-              <Button variant="gold" type="submit">
-                Publish Post
-              </Button>
+              <Button variant="outline" type="button" onClick={() => setIsPublisherOpen(false)}>Hủy</Button>
+              <Button variant="gold" type="submit">Đăng bài</Button>
             </div>
           </form>
         </Card>
@@ -322,9 +318,9 @@ export const Community: React.FC = () => {
       {/* Feed Filters */}
       <div className="flex border-b border-darkborder mb-6 gap-2">
         {[
-          { id: 'latest', label: 'Latest Feed' },
-          { id: 'popular', label: 'Popular' },
-          ...(currentUser ? [{ id: 'following', label: 'Following' }] : [])
+          { id: 'latest', label: 'Mới nhất' },
+          { id: 'popular', label: 'Phổ biến' },
+          ...(currentUser ? [{ id: 'following', label: 'Đang theo dõi' }] : [])
         ].map(opt => (
           <button
             key={opt.id}
@@ -347,7 +343,7 @@ export const Community: React.FC = () => {
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-16 text-neutral-500 text-sm">
-          No posts available inside this feed. Follow more chess players or write a post!
+          Chưa có bài viết nào trong bảng tin này. Hãy theo dõi thêm kỳ thủ hoặc viết một bài!
         </div>
       ) : (
         <div className="space-y-6">
@@ -379,7 +375,7 @@ export const Community: React.FC = () => {
                     <button
                       onClick={() => handleDeletePost(post.id)}
                       className="text-neutral-500 hover:text-red-500 p-1.5 rounded hover:bg-darkhover transition-colors cursor-pointer"
-                      title="Delete Post"
+                      title="Xóa bài viết"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -408,7 +404,7 @@ export const Community: React.FC = () => {
                   <div className="flex flex-col items-center bg-charcoal border border-darkborder/50 p-4 rounded-xl max-w-lg mx-auto gap-3 text-center">
                     <div className="flex items-center gap-2 text-gold text-xs font-bold uppercase tracking-wider">
                       <PlayCircle size={14} />
-                      <span>Interactive Tactical Puzzle</span>
+                      <span>Thế cờ Chiến thuật Tương tác</span>
                     </div>
                     
                     {/* Render Chessboard allowing playability if puzzle solution is present */}
@@ -418,16 +414,16 @@ export const Community: React.FC = () => {
                       onMove={(newFen, moveSan) => {
                         const sol = post.puzzleData?.solution || [];
                         if (sol.length > 0 && (moveSan.toLowerCase() === sol[0].toLowerCase() || moveSan.includes(sol[0]))) {
-                          addToast('Correct move! 🎉 Spot on chess tactic.', 'success');
+                          addToast('Nước đi đúng! 🎉 Chính xác!', 'success');
                         } else {
-                          addToast('Not the best move. Try again!', 'warning');
+                          addToast('Chưa phải nước tốt nhất. Thử lại!', 'warning');
                         }
                       }}
                     />
                     
                     {post.puzzleData?.hint && (
                       <details className="text-xs text-neutral-500 cursor-pointer hover:text-neutral-400">
-                        <summary className="font-semibold select-none">Need a Hint?</summary>
+                        <summary className="font-semibold select-none">Cần gợi ý?</summary>
                         <p className="mt-2 pl-4 italic text-neutral-400">{post.puzzleData.hint}</p>
                       </details>
                     )}
@@ -444,7 +440,7 @@ export const Community: React.FC = () => {
                   }`}
                 >
                   <Heart size={16} fill={likedPosts[post.id] ? 'currentColor' : 'none'} />
-                  <span>{post.likesCount} Likes</span>
+                  <span>{post.likesCount} Thích</span>
                 </button>
 
                 <button
@@ -452,7 +448,7 @@ export const Community: React.FC = () => {
                   className="flex items-center gap-1.5 hover:text-white font-bold cursor-pointer transition-colors"
                 >
                   <MessageSquare size={16} />
-                  <span>{post.commentsCount} Comments</span>
+                  <span>{post.commentsCount} Bình luận</span>
                 </button>
               </div>
 
@@ -476,7 +472,7 @@ export const Community: React.FC = () => {
                       </div>
                     ))}
                     {(commentsMap[post.id] || []).length === 0 && (
-                      <p className="text-xs text-neutral-500 italic pl-4">No comments on this post yet. Be the first!</p>
+                      <p className="text-xs text-neutral-500 italic pl-4">Chưa có bình luận nào. Hãy là người đầu tiên!</p>
                     )}
                   </div>
 
@@ -485,7 +481,7 @@ export const Community: React.FC = () => {
                     <div className="flex gap-2">
                       <input
                         type="text"
-                        placeholder="Add a comment..."
+                        placeholder="Viết bình luận..."
                         value={newCommentText}
                         onChange={(e) => setNewCommentText(e.target.value)}
                         className="bg-charcoal border border-darkborder focus:border-gold rounded-lg px-3 py-2 text-xs text-ivory placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-gold flex-grow"
@@ -495,7 +491,7 @@ export const Community: React.FC = () => {
                       </Button>
                     </div>
                   ) : (
-                    <p className="text-xs text-neutral-500 italic text-center">Please login to write a comment.</p>
+                    <p className="text-xs text-neutral-500 italic text-center">Vui lòng đăng nhập để bình luận.</p>
                   )}
                 </div>
               )}

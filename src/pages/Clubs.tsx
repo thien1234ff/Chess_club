@@ -37,7 +37,7 @@ export const Clubs: React.FC = () => {
   const [description, setDescription] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
-  const [city, setCity] = useState('Hanoi');
+  const [city, setCity] = useState('Hà Nội');
   const [type, setType] = useState<ClubType>('university');
   const [facebook, setFacebook] = useState('');
   const [website, setWebsite] = useState('');
@@ -55,7 +55,7 @@ export const Clubs: React.FC = () => {
         // Individual View loading
         const club = await clubService.getClub(id);
         if (!club) {
-          addToast('Club not found.', 'error');
+          addToast('Không tìm thấy câu lạc bộ.', 'error');
           navigate('/clubs');
           return;
         }
@@ -78,7 +78,7 @@ export const Clubs: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      addToast('Failed to load club details.', 'error');
+      addToast('Không thể tải chi tiết câu lạc bộ.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -105,10 +105,10 @@ export const Clubs: React.FC = () => {
         socialLinks: { facebook, website }
       });
 
-      addToast('Club created successfully!', 'success');
+      addToast('Tạo câu lạc bộ thành công!', 'success');
       setSearchParams({ tab: 'discover' });
     } catch (err) {
-      addToast('Failed to create club.', 'error');
+      addToast('Tạo câu lạc bộ thất bại.', 'error');
     } finally {
       setIsCreating(false);
     }
@@ -116,7 +116,7 @@ export const Clubs: React.FC = () => {
 
   const handleJoinClub = async () => {
     if (!currentUser) {
-      addToast('Please login to join chess clubs.', 'warning');
+      addToast('Vui lòng đăng nhập để tham gia câu lạc bộ.', 'warning');
       navigate('/auth');
       return;
     }
@@ -124,23 +124,23 @@ export const Clubs: React.FC = () => {
 
     try {
       await clubService.joinClub(detailClub.id, currentUser.uid);
-      addToast('Join application submitted to club admin.', 'success');
+      addToast('Đã gửi yêu cầu tham gia tới Ban quản trị CLB.', 'success');
       loadData();
     } catch (err: any) {
-      addToast(err.message || 'Failed to submit application.', 'error');
+      addToast(err.message || 'Không thể gửi đơn đăng ký.', 'error');
     }
   };
 
   const handleLeaveClub = async () => {
     if (!detailClub || !currentUser) return;
-    if (!window.confirm('Are you sure you want to leave this club?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn rời khỏi câu lạc bộ này?')) return;
 
     try {
       await clubService.leaveClub(detailClub.id, currentUser.uid);
-      addToast('Left the club.', 'info');
+      addToast('Đã rời khỏi câu lạc bộ.', 'info');
       loadData();
     } catch (err) {
-      addToast('Failed to leave club.', 'error');
+      addToast('Thao tác rời CLB thất bại.', 'error');
     }
   };
 
@@ -149,23 +149,23 @@ export const Clubs: React.FC = () => {
 
     try {
       await clubService.approveMember(detailClub.id, userId);
-      addToast('Member approved and welcomed to club!', 'success');
+      addToast('Đã phê duyệt thành viên vào câu lạc bộ!', 'success');
       loadData();
     } catch (err) {
-      addToast('Failed to approve member.', 'error');
+      addToast('Không thể phê duyệt thành viên.', 'error');
     }
   };
 
   const handleRemoveMember = async (userId: string) => {
     if (!detailClub) return;
-    if (!window.confirm('Are you sure you want to remove this member from the roster?')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn loại thành viên này khỏi danh sách?')) return;
 
     try {
       await clubService.leaveClub(detailClub.id, userId);
-      addToast('Member removed from roster.', 'info');
+      addToast('Đã xóa thành viên khỏi danh sách.', 'info');
       loadData();
     } catch (err) {
-      addToast('Failed to remove member.', 'error');
+      addToast('Không thể xóa thành viên.', 'error');
     }
   };
 
@@ -191,7 +191,7 @@ export const Clubs: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
         <Button variant="outline" size="sm" onClick={() => navigate('/clubs')} className="mb-6">
-          ← Back to Clubs Feed
+          ← Quay lại Danh sách Câu lạc bộ
         </Button>
 
         {/* Club Details cover card */}
@@ -221,36 +221,36 @@ export const Clubs: React.FC = () => {
                 <h2 className="text-xl font-bold font-display text-white">{detailClub.name}</h2>
                 <div className="flex items-center justify-center lg:justify-start gap-2">
                   <Badge variant="gold">{detailClub.location.type}</Badge>
-                  <Badge variant="default">Founded {detailClub.foundedAt}</Badge>
+                  <Badge variant="default">Thành lập {detailClub.foundedAt}</Badge>
                 </div>
               </div>
 
               <div className="flex items-center justify-center lg:justify-start gap-4 border-y border-darkborder py-3 mb-6 text-xs text-neutral-400">
                 <div>
                   <span className="font-bold text-white block text-sm">{approvedMembers.length}</span>
-                  <span className="uppercase tracking-wider font-semibold text-[10px]">Members</span>
+                  <span className="uppercase tracking-wider font-semibold text-[10px]">Thành viên</span>
                 </div>
                 <div>
                   <span className="font-bold text-white block text-sm">{detailClub.location.city}</span>
-                  <span className="uppercase tracking-wider font-semibold text-[10px]">City</span>
+                  <span className="uppercase tracking-wider font-semibold text-[10px]">Khu vực</span>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col gap-2">
                 {isClubAdmin ? (
-                  <Badge variant="gold" size="md" className="py-2 text-center block">You are the Owner</Badge>
+                  <Badge variant="gold" size="md" className="py-2 text-center block">Bạn là Chủ CLB</Badge>
                 ) : isApproved ? (
                   <Button variant="outline" className="w-full text-xs text-red-500" onClick={handleLeaveClub}>
-                    Leave Club
+                    Rời Câu lạc bộ
                   </Button>
                 ) : isPending ? (
                   <Button variant="outline" className="w-full text-xs" disabled>
-                    Application Pending
+                    Đang chờ duyệt đơn
                   </Button>
                 ) : (
                   <Button variant="gold" className="w-full text-xs" onClick={handleJoinClub}>
-                    Request to Join
+                    Gửi yêu cầu Tham gia
                   </Button>
                 )}
               </div>
@@ -262,14 +262,14 @@ export const Clubs: React.FC = () => {
             {/* Sub Tab headers */}
             <div className="flex border-b border-darkborder mb-6 gap-2">
               <button onClick={() => setActiveSubTab('about')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${activeSubTab === 'about' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
-                About
+                Giới thiệu
               </button>
               <button onClick={() => setActiveSubTab('members')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${activeSubTab === 'members' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
-                Members ({approvedMembers.length})
+                Thành viên ({approvedMembers.length})
               </button>
               {isClubAdmin && (
                 <button onClick={() => setActiveSubTab('admin')} className={`px-4 py-3 text-xs font-bold uppercase tracking-wider border-b-2 cursor-pointer ${activeSubTab === 'admin' ? 'border-gold text-gold' : 'border-transparent text-neutral-400 hover:text-white'}`}>
-                  Admin Panel ({pendingMembers.length})
+                  Quản trị CLB ({pendingMembers.length})
                 </button>
               )}
             </div>
@@ -278,14 +278,14 @@ export const Clubs: React.FC = () => {
             {activeSubTab === 'about' && (
               <div className="space-y-6">
                 <Card>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-2 font-display">Club Biography</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-2 font-display">Thông tin Câu lạc bộ</h3>
                   <p className="text-sm text-neutral-200 leading-relaxed whitespace-pre-wrap">{detailClub.description}</p>
                 </Card>
 
                 {/* Social media connections */}
                 {(detailClub.socialLinks.facebook || detailClub.socialLinks.website) && (
                   <Card className="space-y-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-display">Social Connections</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 font-display">Liên kết Truyền thông</h3>
                     <div className="space-y-2 text-xs text-neutral-300">
                       {detailClub.socialLinks.facebook && (
                         <div className="flex gap-2 items-center">
@@ -307,9 +307,9 @@ export const Clubs: React.FC = () => {
 
             {activeSubTab === 'members' && (
               <Card>
-                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Club Roster</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Danh sách Thành viên</h3>
                 {approvedMembers.length === 0 ? (
-                  <p className="text-xs text-neutral-500 italic">No approved members in this club yet.</p>
+                  <p className="text-xs text-neutral-500 italic">Chưa có thành viên chính thức nào trong câu lạc bộ.</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {approvedMembers.map(({ user }) => (
@@ -332,9 +332,9 @@ export const Clubs: React.FC = () => {
               <div className="space-y-6">
                 {/* Roster requests check */}
                 <Card>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Join Applications</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Yêu cầu Tham gia</h3>
                   {pendingMembers.length === 0 ? (
-                    <p className="text-xs text-neutral-500 italic">No pending applications for roster entry.</p>
+                    <p className="text-xs text-neutral-500 italic">Không có đơn xin gia nhập nào đang chờ duyệt.</p>
                   ) : (
                     <div className="space-y-3">
                       {pendingMembers.map(({ user }) => (
@@ -349,8 +349,8 @@ export const Clubs: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="gold" size="sm" onClick={() => handleApproveMember(user.uid)}>Approve</Button>
-                            <Button variant="outline" size="sm" className="text-red-500" onClick={() => handleRemoveMember(user.uid)}>Reject</Button>
+                            <Button variant="gold" size="sm" onClick={() => handleApproveMember(user.uid)}>Duyệt</Button>
+                            <Button variant="outline" size="sm" className="text-red-500" onClick={() => handleRemoveMember(user.uid)}>Từ chối</Button>
                           </div>
                         </div>
                       ))}
@@ -360,13 +360,13 @@ export const Clubs: React.FC = () => {
 
                 {/* Manage active roster */}
                 <Card>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Remove Roster Members</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-4 font-display">Quản lý Danh sách Thành viên</h3>
                   <div className="divide-y divide-darkborder">
                     {approvedMembers.filter(m => m.user.uid !== detailClub.creatorId).map(({ user }) => (
                       <div key={user.uid} className="flex justify-between items-center py-3">
                         <span className="font-bold text-sm text-white">{user.fullName}</span>
                         <Button variant="outline" size="sm" className="text-red-500 text-xs py-1" onClick={() => handleRemoveMember(user.uid)}>
-                          Remove
+                          Xóa khỏi CLB
                         </Button>
                       </div>
                     ))}
@@ -385,8 +385,8 @@ export const Clubs: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold font-display text-white tracking-wide">Chess Clubs Directory</h1>
-          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Join university, private, or online-only chess circles</p>
+          <h1 className="text-2xl font-bold font-display text-white tracking-wide">Danh sách Câu lạc bộ Cờ vua</h1>
+          <p className="text-xs text-neutral-500 mt-1 uppercase tracking-wider font-semibold">Gia nhập các câu lạc bộ đại học, tư nhân hoặc trực tuyến</p>
         </div>
 
         {currentUser && (
@@ -394,7 +394,7 @@ export const Clubs: React.FC = () => {
             variant="gold" 
             onClick={() => setTab(currentTab === 'create' ? 'discover' : 'create')}
           >
-            {currentTab === 'create' ? 'Cancel Setup' : 'Create Club'}
+            {currentTab === 'create' ? 'Hủy thiết lập' : 'Tạo Câu lạc bộ'}
           </Button>
         )}
       </div>
@@ -415,11 +415,11 @@ export const Clubs: React.FC = () => {
                   <p className="text-xs text-neutral-400 line-clamp-3 mb-6">{club.description}</p>
                 </div>
                 <div className="border-t border-darkborder/50 pt-4 flex justify-between items-center text-xs text-neutral-400 mt-auto">
-                  <span>👥 {club.membersCount} Members</span>
+                  <span>👥 {club.membersCount} Thành viên</span>
                   <span>📍 {club.location.city}</span>
                 </div>
                 <Button variant="secondary" className="w-full text-xs font-semibold mt-6" onClick={() => navigate(`/clubs/${club.id}`)}>
-                  View Club
+                  Xem Câu lạc bộ
                 </Button>
               </div>
             </Card>
@@ -430,41 +430,41 @@ export const Clubs: React.FC = () => {
       {/* CREATE CLUB FORM */}
       {currentTab === 'create' && (
         <Card className="max-w-2xl mx-auto p-8 border border-darkborder bg-darkcard">
-          <h3 className="text-lg font-bold font-display text-white border-b border-darkborder pb-3 mb-6">Register Chess Club</h3>
+          <h3 className="text-lg font-bold font-display text-white border-b border-darkborder pb-3 mb-6">Đăng ký Câu lạc bộ Cờ vua</h3>
           <form onSubmit={handleCreateClub} className="space-y-4">
-            <Input label="Club Name" type="text" placeholder="e.g. HUST Bach Khoa Chess Center" value={name} onChange={(e) => setName(e.target.value)} required />
-            <Input label="Description" isTextArea rows={4} placeholder="Summarize club meetings, weekly routines..." value={description} onChange={(e) => setDescription(e.target.value)} required />
+            <Input label="Tên Câu lạc bộ" type="text" placeholder="Ví dụ: Câu lạc bộ Cờ vua Bách Khoa HUST" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input label="Mô tả" isTextArea rows={4} placeholder="Tóm tắt lịch sinh hoạt, định hướng hoạt động..." value={description} onChange={(e) => setDescription(e.target.value)} required />
             
             <div className="grid grid-cols-2 gap-4">
-              <Input label="Logo URL (Optional)" type="text" placeholder="https://images.unsplash.com/..." value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
-              <Input label="Cover Image URL (Optional)" type="text" placeholder="https://images.unsplash.com/..." value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
+              <Input label="URL Logo (Tùy chọn)" type="text" placeholder="https://images.unsplash.com/..." value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} />
+              <Input label="URL Ảnh bìa (Tùy chọn)" type="text" placeholder="https://images.unsplash.com/..." value={coverUrl} onChange={(e) => setCoverUrl(e.target.value)} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Club Format</label>
+                <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Mô hình Câu lạc bộ</label>
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value as ClubType)}
                   className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-4 py-2.5 text-sm focus:outline-none"
                 >
-                  <option value="university">University Roster</option>
-                  <option value="school">Primary/Secondary School</option>
-                  <option value="private">Private Guild</option>
-                  <option value="online">Online Circle</option>
+                  <option value="university">CLB Sinh viên / Đại học</option>
+                  <option value="school">CLB Trường phổ thông / Cơ sở</option>
+                  <option value="private">CLB Tư nhân / Chuyên nghiệp</option>
+                  <option value="online">CLB Trực tuyến</option>
                 </select>
               </div>
-              <Input label="Target Location City" type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
+              <Input label="Thành phố / Khu vực" type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
             </div>
 
             <div className="grid grid-cols-2 gap-4 border-t border-darkborder pt-4">
-              <Input label="Facebook Fanpage" type="text" placeholder="https://facebook.com/..." value={facebook} onChange={(e) => setFacebook(e.target.value)} />
-              <Input label="Official Website" type="text" placeholder="https://..." value={website} onChange={(e) => setWebsite(e.target.value)} />
+              <Input label="Fanpage Facebook" type="text" placeholder="https://facebook.com/..." value={facebook} onChange={(e) => setFacebook(e.target.value)} />
+              <Input label="Website chính thức" type="text" placeholder="https://..." value={website} onChange={(e) => setWebsite(e.target.value)} />
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t border-darkborder">
-              <Button variant="outline" type="button" onClick={() => setTab('discover')}>Cancel</Button>
-              <Button variant="gold" type="submit" isLoading={isCreating}>Create Club</Button>
+              <Button variant="outline" type="button" onClick={() => setTab('discover')}>Hủy</Button>
+              <Button variant="gold" type="submit" isLoading={isCreating}>Tạo Câu lạc bộ</Button>
             </div>
           </form>
         </Card>

@@ -67,7 +67,7 @@ export const Coaches: React.FC = () => {
       }
     } catch (err) {
       console.error(err);
-      addToast('Failed to load coaches information.', 'error');
+      addToast('Không thể tải thông tin huấn luyện viên.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +85,7 @@ export const Coaches: React.FC = () => {
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      addToast('Please login to book chess lessons.', 'warning');
+      addToast('Vui lòng đăng nhập để đặt lịch học cờ vua.', 'warning');
       navigate('/auth');
       return;
     }
@@ -103,7 +103,7 @@ export const Coaches: React.FC = () => {
         paymentMethod
       });
 
-      addToast('Lesson booked successfully! Pending coach confirmation.', 'success');
+      addToast('Đặt lịch học thành công! Đang chờ huấn luyện viên xác nhận.', 'success');
       setIsBookingModalOpen(false);
       setSelectedSlot(null);
       // Reload slots
@@ -113,7 +113,7 @@ export const Coaches: React.FC = () => {
       // Redirect to student profile bookings list
       navigate(`/profile/${currentUser.uid}?tab=bookings`);
     } catch (err: any) {
-      addToast(err.message || 'Failed to submit lesson booking.', 'error');
+      addToast(err.message || 'Gửi yêu cầu đặt lịch thất bại.', 'error');
     } finally {
       setIsBookingSubmit(false);
     }
@@ -157,7 +157,7 @@ export const Coaches: React.FC = () => {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 sm:px-6 text-left bg-charcoal min-h-screen">
         <Button variant="outline" size="sm" onClick={() => navigate('/coaches')} className="mb-6">
-          ← Back to Coach Discovery
+          ← Quay lại Danh sách Huấn luyện viên
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -177,19 +177,19 @@ export const Coaches: React.FC = () => {
                   <span className="text-xs text-neutral-500 block mt-1">@{user.username}</span>
                   <div className="flex items-center gap-4 mt-3 text-xs text-neutral-300">
                     <span className="flex items-center gap-1"><MapPin size={12} className="text-gold" /> {user.location.city}</span>
-                    <span>⭐ {coach.rating} ({coach.reviewsCount} reviews)</span>
+                    <span>⭐ {coach.rating} ({coach.reviewsCount} đánh giá)</span>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Teaching Methodology</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Phương pháp Giảng dạy</h3>
                   <p className="text-sm text-neutral-200 leading-relaxed">{coach.teachingMethodology}</p>
                 </div>
 
                 <div className="border-t border-darkborder/50 pt-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Specializations</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Chuyên môn Giảng dạy</h3>
                   <div className="flex flex-wrap gap-2">
                     {coach.specializations.map(spec => (
                       <Badge key={spec} variant="gold">{spec.replace('_', ' ')}</Badge>
@@ -199,12 +199,12 @@ export const Coaches: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-4 border-t border-darkborder/50 pt-4 text-xs text-neutral-400">
                   <div>
-                    <span className="block text-neutral-500 font-bold uppercase tracking-wider">Experience</span>
-                    <span className="text-white text-sm font-semibold mt-1 block">{coach.experienceYears} Years teaching</span>
+                    <span className="block text-neutral-500 font-bold uppercase tracking-wider">Kinh nghiệm</span>
+                    <span className="text-white text-sm font-semibold mt-1 block">{coach.experienceYears} Năm giảng dạy</span>
                   </div>
                   <div>
-                    <span className="block text-neutral-500 font-bold uppercase tracking-wider">Pricing</span>
-                    <span className="text-gold text-sm font-semibold mt-1 block">{coach.hourlyRate.toLocaleString()} VND/hr</span>
+                    <span className="block text-neutral-500 font-bold uppercase tracking-wider">Học phí</span>
+                    <span className="text-gold text-sm font-semibold mt-1 block">{coach.hourlyRate.toLocaleString()} VND/giờ</span>
                   </div>
                 </div>
               </div>
@@ -216,12 +216,12 @@ export const Coaches: React.FC = () => {
             <Card className="p-6 border border-darkborder sticky top-24">
               <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-300 mb-4 flex items-center gap-2">
                 <Calendar size={16} className="text-gold" />
-                <span>Book a Session</span>
+                <span>Đặt lịch Học cờ</span>
               </h3>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-neutral-500 mb-2">Select Date</label>
+                  <label className="block text-xs font-bold uppercase text-neutral-500 mb-2">Chọn Ngày học</label>
                   <input
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
@@ -232,10 +232,10 @@ export const Coaches: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase text-neutral-500 mb-2">Available Slots</label>
+                  <label className="block text-xs font-bold uppercase text-neutral-500 mb-2">Khung giờ Khả dụng</label>
                   {availableSlots.length === 0 ? (
                     <div className="text-center py-4 bg-charcoal border border-darkborder/50 rounded-lg text-xs text-neutral-500">
-                      No availability scheduled for this day of the week.
+                      Chưa có khung giờ học nào được xếp lịch cho ngày này.
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 gap-2">
@@ -266,7 +266,7 @@ export const Coaches: React.FC = () => {
                 {selectedSlot && (
                   <div className="pt-4 border-t border-darkborder/50 space-y-4">
                     <div className="flex justify-between text-xs font-semibold">
-                      <span className="text-neutral-400">Total Price (1 hr):</span>
+                      <span className="text-neutral-400">Tổng học phí (1 giờ):</span>
                       <span className="text-gold">{coach.hourlyRate.toLocaleString()} VND</span>
                     </div>
                     <Button 
@@ -274,7 +274,7 @@ export const Coaches: React.FC = () => {
                       className="w-full"
                       onClick={() => setIsBookingModalOpen(true)}
                     >
-                      Continue to Booking
+                      Tiếp tục Đặt lịch
                     </Button>
                   </div>
                 )}
@@ -287,51 +287,51 @@ export const Coaches: React.FC = () => {
         <Modal 
           isOpen={isBookingModalOpen} 
           onClose={() => setIsBookingModalOpen(false)} 
-          title="Confirm Lesson Booking"
+          title="Xác nhận Đặt lịch Học"
         >
           <form onSubmit={handleBookingSubmit} className="space-y-4 text-left">
             <div className="bg-charcoal/50 p-4 border border-darkborder rounded-xl space-y-2 text-xs">
               <div className="flex justify-between">
-                <span className="text-neutral-500 font-semibold">Coach:</span>
-                <span className="text-white font-bold">{user.fullName} ({user.title || 'NM'})</span>
+                <span className="text-neutral-500 font-semibold">Huấn luyện viên:</span>
+                <span className="text-white font-bold">{user.fullName} ({user.title || 'HLV'})</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500 font-semibold">Schedule:</span>
-                <span className="text-white font-bold">{bookingDate} at {selectedSlot}</span>
+                <span className="text-neutral-500 font-semibold">Thời gian:</span>
+                <span className="text-white font-bold">{bookingDate} lúc {selectedSlot}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-neutral-500 font-semibold">Duration:</span>
-                <span className="text-white font-bold">1 Hour</span>
+                <span className="text-neutral-500 font-semibold">Thời lượng:</span>
+                <span className="text-white font-bold">1 Giờ</span>
               </div>
               <div className="flex justify-between border-t border-darkborder pt-2 mt-2">
-                <span className="text-neutral-500 font-semibold">Subtotal Price:</span>
+                <span className="text-neutral-500 font-semibold">Tổng tiền:</span>
                 <span className="text-gold font-bold">{coach.hourlyRate.toLocaleString()} VND</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Payment Method</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Phương thức Thanh toán</label>
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
                 className="w-full bg-darkcard text-ivory border border-darkborder rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-gold"
               >
-                <option value="bank_transfer">Bank Transfer (Vietnamese Banks / QR)</option>
-                <option value="cash">Cash (Offline locations only)</option>
-                <option value="e_wallet">Momo / ZaloPay Electronic Wallet</option>
+                <option value="bank_transfer">Chuyển khoản Ngân hàng (QR Code / TK)</option>
+                <option value="cash">Tiền mặt (Chỉ áp dụng khi học trực tiếp)</option>
+                <option value="e_wallet">Ví điện tử Momo / ZaloPay</option>
               </select>
             </div>
 
             {paymentMethod === 'bank_transfer' && (
               <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] text-amber-400 flex items-start gap-2">
                 <AlertTriangle size={16} className="shrink-0" />
-                <p>Transfer to MB Bank: 970422... (Acc: ChessHub Vietnam). Please upload bank transaction reference details in chat box.</p>
+                <p>Chuyển khoản tới MB Bank: 970422... (Chủ TK: ChessHub Vietnam). Vui lòng gửi mã giao dịch qua tin nhắn.</p>
               </div>
             )}
 
             <div className="flex justify-end gap-2 pt-4 border-t border-darkborder">
-              <Button variant="outline" type="button" onClick={() => setIsBookingModalOpen(false)}>Cancel</Button>
-              <Button variant="gold" type="submit" isLoading={isBookingSubmit}>Confirm Booking</Button>
+              <Button variant="outline" type="button" onClick={() => setIsBookingModalOpen(false)}>Hủy</Button>
+              <Button variant="gold" type="submit" isLoading={isBookingSubmit}>Xác nhận Đặt lịch</Button>
             </div>
           </form>
         </Modal>
@@ -365,7 +365,7 @@ export const Coaches: React.FC = () => {
           />
           
           <div>
-            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">City</label>
+            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Thành phố</label>
             <select
               value={filterCity}
               onChange={(e) => setFilterCity(e.target.value)}
@@ -380,7 +380,7 @@ export const Coaches: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Specialty</label>
+            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Chuyên môn</label>
             <select
               value={filterSpecialty}
               onChange={(e) => setFilterSpecialty(e.target.value)}
@@ -397,7 +397,7 @@ export const Coaches: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Max Price/hr</label>
+            <label className="block text-xs font-semibold uppercase text-neutral-400 mb-2">Học phí tối đa / giờ</label>
             <input
               type="range"
               min={100000}

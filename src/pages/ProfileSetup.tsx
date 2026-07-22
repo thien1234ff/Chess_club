@@ -179,7 +179,7 @@ export const ProfileSetup: React.FC = () => {
             className="w-full mt-6"
             isLoading={isLoading}
           >
-            Hoàn tất thiết lập & Bắt đầu ngay
+            Hoàn tất thiết lập &amp; Bắt đầu ngay
           </Button>
         </form>
       </Card>

@@ -73,7 +73,7 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.label}
                   to={link.path}
-                  className={`text-sm font-semibold tracking-wide transition-colors ${
+                  className={`text-sm font-semibold tracking-wide transition-colors whitespace-nowrap ${
                     isActive(link.path) 
                       ? 'text-gold' 
                       : 'text-neutral-400 hover:text-white'

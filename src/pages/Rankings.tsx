@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { userService } from '../services/userService';
 import type { User } from '../types';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
-import { MapPin } from 'lucide-react';
+import { MapPin, ShieldCheck } from 'lucide-react';
 
 export const Rankings: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -86,12 +86,12 @@ export const Rankings: React.FC = () => {
             onChange={(e) => setCityFilter(e.target.value)}
             className="w-full bg-charcoal text-ivory border border-darkborder rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-gold"
           >
-            <option value="">All Regions</option>
-            <option value="Hanoi">Hanoi</option>
-            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-            <option value="Da Nang">Da Nang</option>
-            <option value="Can Tho">Can Tho</option>
-            <option value="Hue">Hue</option>
+            <option value="">Tất cả khu vực</option>
+            <option value="Hanoi">Hà Nội</option>
+            <option value="Ho Chi Minh City">TP. Hồ Chí Minh</option>
+            <option value="Da Nang">Đà Nẵng</option>
+            <option value="Can Tho">Cần Thơ</option>
+            <option value="Hue">Huế</option>
           </select>
         </div>
       </Card>
@@ -113,26 +113,61 @@ export const Rankings: React.FC = () => {
             <tbody className="divide-y divide-darkborder">
               {sortedLeaderboard.map((user, idx) => {
                 const rank = idx + 1;
+                const hasFide = Boolean(user.fideId);
 
                 return (
-                  <tr key={user.uid} className="hover:bg-darkhover transition-colors">
+                  <tr
+                    key={user.uid}
+                    className={`hover:bg-darkhover transition-colors ${
+                      hasFide ? 'border-l-2 border-red-600/60' : ''
+                    }`}
+                  >
                     <td className="p-4 text-center text-sm font-semibold">
                       {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full overflow-hidden bg-darkborder shrink-0">
+                        {/* Avatar with FIDE ring if verified */}
+                        <div
+                          className={`h-8 w-8 rounded-full overflow-hidden shrink-0 ${
+                            hasFide
+                              ? 'ring-2 ring-red-500/70 ring-offset-1 ring-offset-charcoal'
+                              : 'bg-darkborder'
+                          }`}
+                        >
                           {user.avatarUrl ? (
                             <img src={user.avatarUrl} alt={user.fullName} className="h-full w-full object-cover" />
                           ) : (
-                            <span className="text-[10px] font-bold text-neutral-500">♟</span>
+                            <span className="text-[10px] font-bold text-neutral-500 flex items-center justify-center h-full">♟</span>
                           )}
                         </div>
                         <div>
-                          <Link to={`/profile/${user.uid}`} className="font-bold text-white hover:underline text-sm block leading-none">
+                          <Link
+                            to={`/profile/${user.uid}`}
+                            className={`font-bold hover:underline text-sm block leading-none ${
+                              hasFide ? 'text-red-400 hover:text-red-300' : 'text-white'
+                            }`}
+                          >
                             {user.fullName}
                           </Link>
-                          <span className="text-[10px] text-neutral-500 mt-1 block">@{user.username}</span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span
+                              className={`text-[10px] block ${
+                                hasFide ? 'text-red-500/80 font-semibold' : 'text-neutral-500'
+                              }`}
+                            >
+                              @{user.username}
+                            </span>
+                            {hasFide && (
+                              <span
+                                title={`FIDE ID: ${user.fideId}`}
+                                className="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider text-red-400 bg-red-900/30 border border-red-800/50 px-1 py-0.5 rounded"
+                              >
+                                <ShieldCheck size={8} />
+                                FIDE
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -143,8 +178,22 @@ export const Rankings: React.FC = () => {
                       {user.title ? <Badge variant="gold">{user.title}</Badge> : '-'}
                     </td>
                     <td className="p-4 text-center text-neutral-400 font-semibold">{user.stats.gamesPlayed}</td>
-                    <td className="p-4 text-right pr-6 text-sm font-bold font-display text-gold">
-                      {user.ratings[ratingFormat] || 1200}
+                    <td className="p-4 text-right pr-6">
+                      {hasFide ? (
+                        <div className="inline-flex flex-col items-end gap-0.5">
+                          <span className="text-sm font-bold font-display text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]">
+                            {user.ratings[ratingFormat] || 1200}
+                          </span>
+                          <span className="text-[9px] font-bold uppercase tracking-widest text-red-600/70 flex items-center gap-0.5">
+                            <ShieldCheck size={8} />
+                            FIDE Rated
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-sm font-bold font-display text-gold">
+                          {user.ratings[ratingFormat] || 1200}
+                        </span>
+                      )}
                     </td>
                   </tr>
                 );

@@ -43,7 +43,7 @@ export const AdminDashboard: React.FC = () => {
       setReports(listReports);
     } catch (err) {
       console.error(err);
-      addToast('Failed to load admin logs.', 'error');
+      addToast('Không thể tải nhật ký quản trị.', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -56,10 +56,10 @@ export const AdminDashboard: React.FC = () => {
   const handleApproveApplication = async (uid: string) => {
     try {
       await userService.approveRoleRequest(uid);
-      addToast('Role status approved successfully.', 'success');
+      addToast('Phê duyệt vai trò thành công.', 'success');
       loadAdminData();
     } catch (err: any) {
-      addToast(err.message || 'Failed to approve application.', 'error');
+      addToast(err.message || 'Phê duyệt hồ sơ thất bại.', 'error');
     }
   };
 
@@ -67,7 +67,7 @@ export const AdminDashboard: React.FC = () => {
     try {
       if (isFirebaseMode && db) {
         await updateDoc(doc(db, 'reports', reportId), { status: 'resolved' });
-        addToast('Report dismissed.', 'info');
+        addToast('Đã bỏ qua báo cáo.', 'info');
         loadAdminData();
       } else {
         const allReports = MockDB.getCollection<Report>('REPORTS');
@@ -75,7 +75,7 @@ export const AdminDashboard: React.FC = () => {
         if (idx !== -1) {
           allReports[idx].status = 'resolved';
           MockDB.saveCollection('REPORTS', allReports);
-          addToast('Report dismissed.', 'info');
+          addToast('Đã bỏ qua báo cáo.', 'info');
           loadAdminData();
         }
       }
@@ -100,30 +100,30 @@ export const AdminDashboard: React.FC = () => {
         }
       }
       
-      addToast('Reported post deleted permanently.', 'success');
+      addToast('Đã xóa bài viết được báo cáo.', 'success');
       loadAdminData();
     } catch (err) {
-      addToast('Failed to delete post.', 'error');
+      addToast('Xóa bài viết thất bại.', 'error');
     }
   };
 
   const handleBanUser = async (uid: string) => {
     if (uid === currentUser?.uid) {
-      addToast('You cannot ban yourself!', 'error');
+      addToast('Bạn không thể cấm chính mình!', 'error');
       return;
     }
-    if (!window.confirm('Are you sure you want to ban this user? This will disable their login access.')) return;
+    if (!window.confirm('Bạn có chắc chắn muốn cấm người dùng này? Điều này sẽ vô hiệu hóa quyền truy cập của họ.')) return;
 
     try {
       await userService.updateUser(uid, {
         fullName: '[BANNED USER]',
-        bio: 'This account has been suspended for violating ChessHub Terms of Service.',
+        bio: 'Tài khoản này đã bị đình chỉ vì vi phạm Điều khoản Dịch vụ ChessHub.',
         role: 'player'
       });
-      addToast('User has been banned.', 'info');
+      addToast('Người dùng đã bị cấm.', 'info');
       loadAdminData();
-    } catch (err) {
-      addToast('Failed to ban user.', 'error');
+    } catch (err: any) {
+      addToast('Cấm người dùng thất bại.', 'error');
     }
   };
 
