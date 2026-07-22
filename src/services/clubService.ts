@@ -271,37 +271,63 @@ class ClubService {
 
   // Get active roster list
   async getMembers(clubId: string): Promise<{ member: ClubMember; user: User }[]> {
+    const club = await this.getClub(clubId);
+    let memberList: ClubMember[] = [];
+
     if (isFirebaseMode && db) {
       const q = query(collection(db, 'clubMembers'), where('clubId', '==', clubId));
       const snap = await getDocs(q);
-      const result: { member: ClubMember; user: User }[] = [];
-
-      for (const d of snap.docs) {
-        const member = d.data() as ClubMember;
-        const user = await userService.getUser(member.userId);
-        if (user) {
-          result.push({ member, user });
-        }
-      }
-
-      return result;
+      memberList = snap.docs.map(d => d.data() as ClubMember);
     } else {
-      const members = MockDB.getCollection<ClubMember>('CLUB_MEMBERS').filter(m => m.clubId === clubId);
-      const result: { member: ClubMember; user: User }[] = [];
+      memberList = MockDB.getCollection<ClubMember>('CLUB_MEMBERS').filter(m => m.clubId === clubId);
+    }
 
-      for (const member of members) {
-        const user = await userService.getUser(member.userId);
-        if (user) {
-          result.push({ member, user });
+    // Merge with embedded club.members array if available
+    if (club && club.members && club.members.length > 0) {
+      for (const em of club.members) {
+        if (!memberList.some(m => m.userId === em.userId)) {
+          memberList.push({
+            id: `${clubId}_${em.userId}`,
+            clubId,
+            userId: em.userId,
+            role: em.role,
+            status: em.status,
+            joinedAt: em.joinedAt
+          });
         }
       }
-
-      return result;
     }
+
+    // ALWAYS ENSURE CREATOR IS INCLUDED AS APPROVED PRESIDENT
+    if (club && club.creatorId && !memberList.some(m => m.userId === club.creatorId)) {
+      memberList.unshift({
+        id: `${clubId}_${club.creatorId}`,
+        clubId,
+        userId: club.creatorId,
+        role: 'president',
+        status: 'approved',
+        joinedAt: club.createdAt || new Date().toISOString()
+      });
+    }
+
+    const result: { member: ClubMember; user: User }[] = [];
+    for (const member of memberList) {
+      const user = await userService.getUser(member.userId);
+      if (user) {
+        result.push({ member, user });
+      }
+    }
+
+    return result;
   }
 
   // Check user join state
   async checkMemberStatus(clubId: string, userId: string): Promise<ClubMember['status'] | 'not_joined'> {
+    const club = await this.getClub(clubId);
+    if (club && club.creatorId === userId) {
+      return 'approved';
+    }
+
     if (isFirebaseMode && db) {
       const memberId = `${clubId}_${userId}`;
       const snap = await getDoc(doc(db, 'clubMembers', memberId));
